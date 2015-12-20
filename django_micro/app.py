@@ -26,7 +26,7 @@ def show_index(request):
 
 
 urlpatterns = [
-    url(r'^$', show_index, name='form_action'),
+    url(r'^$', show_index),
 ]
 
 django_settings = {
