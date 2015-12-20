@@ -3,8 +3,10 @@ from django.conf.urls import url
 from django.shortcuts import render
 import django
 import sys
+import os
 
 app_name = 'django_micro'
+base_dir = os.path.dirname(__file__)
 sys.modules[app_name] = sys.modules[__name__]
 
 
@@ -28,13 +30,18 @@ urlpatterns = [
 ]
 
 django_settings = {
-    'INSTALLED_APPS': [app_name],
+    'INSTALLED_APPS': [
+        'django.contrib.staticfiles',
+        app_name,
+    ],
     'ROOT_URLCONF': app_name,
     'ALLOWED_HOSTS': [],
     'DEBUG': True,
+    'STATIC_URL': '/static/',
+    'STATICFILES_DIRS': [os.path.join(base_dir, 'static')],
     'TEMPLATES': [{
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['templates'],
+        'DIRS': [os.path.join(base_dir, 'templates')],
     }],
 }
 
