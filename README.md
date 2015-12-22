@@ -1,5 +1,9 @@
 # Django Micro
 
-> Django microapplication template.
+Django application in single file. Use it for landings and other small websites. *Migrations is not supported.*
 
-Use Django in signle file. Just run `python app.py runserver`.
+## Usage
+
+```
+$ python django_micro/app.py runserver
+```
