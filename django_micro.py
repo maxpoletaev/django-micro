@@ -6,7 +6,7 @@ import django
 import os
 import sys
 
-__all__ = ['view', 'configure', 'run', 'template', 'urlpatterns']
+__all__ = ['command', 'configure', 'run', 'template', 'urlpatterns', 'view']
 
 
 # -------------------

@@ -10,6 +10,9 @@ setup(
     author_email='max.poletaev@gmail.com',
     url='https://github.com/zenwalker/django-micro',
     license='BSD',
+    install_requires=[
+        'django>=1.10',
+    ],
     classifiers=[
         'Development Status :: 4 - Beta',
         'Programming Language :: Python',
