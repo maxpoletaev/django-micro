@@ -6,7 +6,7 @@ import django
 import os
 import sys
 
-__all__ = ['command', 'configure', 'run', 'template', 'urlpatterns', 'view']
+__all__ = ['command', 'configure', 'run', 'route', 'template', 'urlpatterns']
 
 
 # -------------------
@@ -16,7 +16,7 @@ __all__ = ['command', 'configure', 'run', 'template', 'urlpatterns', 'view']
 urlpatterns = []
 
 
-def view(pattern, *args, **kwargs):
+def route(pattern, *args, **kwargs):
     def wrapper(view_fn):
         kwargs.setdefault('name', view_fn.__name__)
         urlpatterns.append(url(pattern, view_fn, *args, **kwargs))

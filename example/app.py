@@ -1,4 +1,4 @@
-from django_micro import configure, view, template, run, urlpatterns
+from django_micro import configure, route, template, run, urlpatterns
 from django.conf.urls import url
 import os
 
@@ -71,14 +71,14 @@ class Post(models.Model):
 from django.shortcuts import render, get_object_or_404
 
 
-@view(r'^$', name='index')
+@route(r'^$', name='index')
 def show_index(request):
     posts = Post.objects.all()
     name = request.GET.get('name', 'Django')
     return render(request, 'index.html', {'name': name, 'posts': posts})
 
 
-@view(r'^blog/(\d+)$', name='post')
+@route(r'^blog/(\d+)$', name='post')
 def show_post(request, post_id):
     post = get_object_or_404(Post, id=post_id)
     return render(request, 'post.html', {'post': post})
