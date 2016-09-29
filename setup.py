@@ -4,7 +4,7 @@ setup(
     name='django-micro',
     description='Django as microframework',
     keywords='django microframework',
-    packages=['django_micro'],
+    py_modules=['django_micro'],
     version='1.0.0',
     author='Max Poletaev',
     author_email='max.poletaev@gmail.com',
