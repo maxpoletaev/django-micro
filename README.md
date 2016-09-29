@@ -1,60 +1,22 @@
 # Django Micro
 
-Django application in single file.
+Use Django as microframework. Write small application in single file.
 
-## Usage
+## Short example
 
-### Start project from template
+```python
+from django_micro import configure, view, run
+from django.shortcuts import render
 
+DEBUG = True
+configure(locals())
+
+
+@view(r'^$', name='index')
+def show_index(request):
+    name = request.GET.get('name', 'World')
+    return render(request, 'index.html', {'name': name})
+
+
+application = run()
 ```
-django-admin startproject my_project \
---template=https://github.com/zenwalker/django-micro/archive/master.zip
-```
-
-### Run
-
-```
-$ python my_project/app.py runserver
-```
-
-## Cookbook
-
-### Custom template tags
-
- 1. Add template tags section to `app.py`
-
-    ```python
-    # -------------------
-    # Template tags
-    # -------------------
-
-    from django.template import Library
-    register = Library()
-
-
-    @register.simple_tag
-    def hello(name):
-        return 'Hello, {}'.format(name)
-    ```
-
- 2. Add `builtins` option to template configuration
-
-    ```python
-    TEMPLATES=[{
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')],
-        'OPTIONS': {
-            'builtins': [__name__],
-        },
-    }]
-    ```
-
- 3. Just call tag in template (without `load`)
-
-    ```html
-    <html>
-      <body>
-        <h1>{% hello "John" %}</h1>
-      </body>
-    </html>
-    ```
