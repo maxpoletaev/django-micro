@@ -2,19 +2,24 @@
 Django Micro
 ============
 
+.. image::
+    https://img.shields.io/pypi/v/django-micro.svg
+    :target: https://pypi.python.org/pypi/django-micro
+
+
 Use Django as microframework. Write small application in single file.
 
 
 What works
 ==========
 
- - Configuration
- - Views and routes
- - Models (with migrations)
- - Custom management commands
- - Custom template tags
- - Admin interface
- - Third party apps
+- Configuration
+- Views and routes
+- Models (with migrations)
+- Custom management commands
+- Custom template tags
+- Admin interface
+- Third party apps
 
 See example_ with usign all of this features.
 
