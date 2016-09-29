@@ -65,7 +65,7 @@ class Post(models.Model):
 
 
 # -------------------
-# Views
+# Views and routes
 # -------------------
 
 from django.shortcuts import render, get_object_or_404
@@ -85,7 +85,7 @@ def show_post(request, post_id):
 
 
 # -------------------
-# Admin
+# Admin interface
 # -------------------
 
 from django.contrib import admin
@@ -106,6 +106,20 @@ urlpatterns.append(url('^admin/', admin.site.urls))
 @template.simple_tag
 def say_hello(name):
     return 'Hello, {}!'.format(name)
+
+
+# --------------------
+# Management commands
+# --------------------
+
+from django.core.management.base import BaseCommand
+from django_micro import command
+
+
+@command('print_hello')
+class PrintHelloCommand(BaseCommand):
+    def handle(self, *args, **options):
+        self.stdout.write('Hello, Django!')
 
 
 # -------------------
