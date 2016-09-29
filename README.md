@@ -2,6 +2,7 @@
 
 Use Django as microframework. Write small application in single file.
 
+
 ## Short example
 
 ```python
@@ -22,3 +23,16 @@ application = run()
 ```
 
 On localhost application runs with built-in `python app.py runserver` command and deploy as standard WSGI application. No difference, no magick.
+
+
+## What works
+
+ - Configuration
+ - Views and routes
+ - Models (with migrations)
+ - Custom management commands
+ - Custom template tags
+ - Admin interface
+ - Third party apps
+
+See [example](/example/) with usign all of this features.
