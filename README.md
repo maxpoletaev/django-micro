@@ -20,3 +20,5 @@ def show_index(request):
 
 application = run()
 ```
+
+On localhost application runs with built-in `python app.py runserver` command and deploy as standard WSGI application. No difference, no magick.
