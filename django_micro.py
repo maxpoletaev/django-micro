@@ -3,9 +3,10 @@ from django.conf import settings
 from django.conf.urls import url
 import inspect
 import django
+import os
 import sys
 
-__all__ = ['view', 'configure', 'run', 'template']
+__all__ = ['view', 'configure', 'run', 'template', 'urlpatterns']
 
 
 # -------------------
@@ -15,8 +16,9 @@ __all__ = ['view', 'configure', 'run', 'template']
 urlpatterns = []
 
 
-def view(pattern, name=None, *args, **kwargs):
+def view(pattern, *args, **kwargs):
     def wrapper(view_fn):
+        kwargs.setdefault('name', view_fn.__name__)
         urlpatterns.append(url(pattern, view_fn, *args, **kwargs))
         return view_fn
     return wrapper
@@ -36,16 +38,25 @@ register = template = Library()
 
 def get_parent_module():
     name = inspect.stack()[2][0].f_locals['__name__']
-    return name, sys.modules[name]
+    return sys.modules[name]
 
 
-def configure(config_dict={}):
+def configure(config_dict={}, app_label=None):
+    module = get_parent_module()
+    app_label = os.path.basename(os.path.dirname(os.path.abspath(module.__file__)))
+    config_dict.setdefault('TEMPLATE_DIRS', ['templates'])
+
     kwargs = {
+        'INSTALLED_APPS': [app_label] + config_dict.pop('INSTALLED_APPS', []),
         'ROOT_URLCONF': __name__,
         'TEMPLATES': [{
             'BACKEND': 'django.template.backends.django.DjangoTemplates',
-            'OPTIONS': {'builtins': [__name__]},
-            'DIRS': ['templates'],
+            'DIRS': config_dict.pop('TEMPLATE_DIRS'),
+            'APP_DIRS': True,
+            'OPTIONS': {
+                'context_processors': config_dict.pop('CONTEXT_PROCESSORS', []),
+                'builtins': [__name__],
+            },
         }],
     }
 
@@ -59,13 +70,13 @@ def configure(config_dict={}):
 # --------------------
 
 def run():
-    parent_name, _ = get_parent_module()
+    parent = get_parent_module()
 
     if not settings.configured:
         msg = "You should call configure() after configuration define."
         raise ImproperlyConfigured(msg)
 
-    if parent_name == '__main__':
+    if parent.__name__ == '__main__':
         from django.core.management import execute_from_command_line
         execute_from_command_line(sys.argv)
     else:

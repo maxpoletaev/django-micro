@@ -1,8 +1,19 @@
-<html>
-  <head>
-    <title>{% say_hello name %}</title>
-  </head>
-  <body>
-    <h1>{% say_hello name %}</h1>
-  </body>
-</html>
+{% extends "base.html" %}
+{% block title %}Example{% endblock %}
+
+{% block body %}
+  <h1>{% say_hello name %}</h1>
+
+  {% if posts %}
+    <table style="width: 100%">
+      <tr>
+        {% for post in posts %}
+          <td>
+            <a href="{% url 'post' post.id %}">{{ post.title }}</a>
+          </td>
+          <td>{{ post.create_date }}</td>
+        {% endfor %}
+      </tr>
+    </table>
+  {% endif %}
+{% endblock %}
