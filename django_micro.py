@@ -5,6 +5,8 @@ import inspect
 import django
 import sys
 
+__all__ = ['view', 'configure', 'run', 'template']
+
 
 # -------------------
 # Views and routes
