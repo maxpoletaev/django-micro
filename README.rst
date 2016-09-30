@@ -7,7 +7,7 @@ Django Micro
     :target: https://pypi.python.org/pypi/django-micro
 
 
-Django Micro — Lightweight wrapper for usgin Django as microframework and writing small application in single file.
+Django Micro — Lightweight wrapper for using Django as a microframework and writing small applications in a single file.
 
 
 Features
@@ -21,7 +21,7 @@ Features
 - Admin interface
 - Third party apps
 
-See example_ with usign all of this features.
+See an example_ using all of these features.
 
 
 Insallation
@@ -54,7 +54,7 @@ Usage
     application = run()
 
 
-On localhost application runs with built-in ``runserver`` command and deploy as standard WSGI application. No difference, no magick.
+On localhost, an application runs with the built-in ``runserver`` command and deploys as a standard WSGI application. No difference, no magick.
 
 .. code-block::
 
@@ -65,8 +65,8 @@ On localhost application runs with built-in ``runserver`` command and deploy as 
 Related projects
 ================
 
-- importd_ — Popular implementation django-as-microframework idea, but over-engineered, magickal and not intuitive.
-- djmicro_ — Good and lightweight wrapper, but just experiment, without support many features out-of-the-box, such as models and migrations. **Deprecated**.
+- importd_ — Popular implementation of django-as-microframework idea, but over-engineered, magickal and not intuitive.
+- djmicro_ — Good and lightweight wrapper, but just an experiment, without support many features out-of-the-box, such as models and migrations. **Deprecated**.
 
 
 .. _example: https://github.com/zenwalker/django-micro/tree/master/example
