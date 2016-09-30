@@ -1,4 +1,4 @@
-from django_micro import configure, route, template, run
+from django_micro import configure, route, template, run, get_app_label
 import os
 
 
@@ -59,7 +59,7 @@ class Post(models.Model):
     create_date = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        app_label = 'example'
+        app_label = get_app_label()
         ordering = ('-create_date',)
 
 

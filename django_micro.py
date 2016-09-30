@@ -13,6 +13,29 @@ __all__ = ['command', 'configure', 'run', 'route', 'template']
 
 
 # -------------------
+# Application module
+# -------------------
+
+_app_module = None
+_app_label = None
+
+
+def _detect_app_module():
+    global _app_module
+    _app_module = sys.modules[inspect.stack()[2][0].f_locals['__name__']]
+    global _app_label
+    _app_label = os.path.basename(os.path.dirname(os.path.abspath(_app_module.__file__)))
+
+
+def get_app_label():
+    if not _app_label:
+        raise ImproperlyConfigured(
+            "Application label is not detected. "
+            "Check whether the configure() was called.")
+    return _app_label
+
+
+# -------------------
 # Views and routes
 # -------------------
 
@@ -45,21 +68,12 @@ register = template = Library()
 # Configuration
 # --------------------
 
-def get_parent_module(offset=0):
-    name = inspect.stack()[2 + offset][0].f_locals['__name__']
-    return sys.modules[name]
-
-
-def get_app_label():
-    module = get_parent_module(1)
-    return os.path.basename(os.path.dirname(os.path.abspath(module.__file__)))
-
-
 def configure(config_dict={}):
+    _detect_app_module()  # find in the stack module that calls this function
     config_dict.setdefault('TEMPLATE_DIRS', ['templates'])
 
     kwargs = {
-        'INSTALLED_APPS': [get_app_label()] + config_dict.pop('INSTALLED_APPS', []),
+        'INSTALLED_APPS': [_app_label] + config_dict.pop('INSTALLED_APPS', []),
         'ROOT_URLCONF': __name__,
         'TEMPLATES': [{
             'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -97,7 +111,6 @@ def patch_get_commands():
 
 
 def command(name, command_cls=None):
-    app_label = get_app_label()
     if not getattr(management.get_commands, 'patched', False):
         patch_get_commands()
 
@@ -105,7 +118,7 @@ def command(name, command_cls=None):
         command_instance = command_cls()
         # very dirty hack for extracting app name
         # from command (via https://goo.gl/1c1Irj)
-        command_instance.rpartition = lambda x: [app_label]
+        command_instance.rpartition = lambda x: [_app_label]
         _commands[name] = command_instance
         return command_cls
 
@@ -122,13 +135,10 @@ def command(name, command_cls=None):
 # --------------------
 
 def run():
-    parent = get_parent_module()
-
     if not settings.configured:
-        msg = "You should call configure() after configuration define."
-        raise ImproperlyConfigured(msg)
+        raise ImproperlyConfigured("You should call configure() after configuration define.")
 
-    if parent.__name__ == '__main__':
+    if _app_module.__name__ == '__main__':
         from django.core.management import execute_from_command_line
         execute_from_command_line(sys.argv)
     else:
