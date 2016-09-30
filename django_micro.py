@@ -9,7 +9,8 @@ from django.core import management
 from django.core.exceptions import ImproperlyConfigured
 from django.template import Library
 
-__all__ = ['command', 'configure', 'run', 'route', 'template', 'urlpatterns']
+__all__ = ['command', 'configure', 'run', 'route', 'template']
+
 
 # -------------------
 # Views and routes
@@ -18,13 +19,19 @@ __all__ = ['command', 'configure', 'run', 'route', 'template', 'urlpatterns']
 urlpatterns = []
 
 
-def route(pattern, *args, **kwargs):
-    def wrapper(view_fn):
-        kwargs.setdefault('name', view_fn.__name__)
-        urlpatterns.append(url(pattern, view_fn, *args, **kwargs))
-        return view_fn
+def route(pattern, view_func=None, *args, **kwargs):
+    def decorator(view_func):
+        if hasattr(view_func, 'as_view'):
+            view_func = view_func.as_view()
+        urlpatterns.append(url(pattern, view_func, *args, **kwargs))
+        return view_func
 
-    return wrapper
+    # allow use decorator directly
+    # route(r'^$', show_index)
+    if view_func:
+        return decorator(view_func)
+
+    return decorator
 
 
 # -------------------
@@ -89,12 +96,12 @@ def patch_get_commands():
     management.get_commands = patched_get_commands
 
 
-def command(name):
+def command(name, command_cls=None):
     app_label = get_app_label()
     if not getattr(management.get_commands, 'patched', False):
         patch_get_commands()
 
-    def wrapper(command_cls):
+    def decorator(command_cls):
         command_instance = command_cls()
         # very dirty hack for extracting app name
         # from command (via https://goo.gl/1c1Irj)
@@ -102,7 +109,12 @@ def command(name):
         _commands[name] = command_instance
         return command_cls
 
-    return wrapper
+    # allow use decorator directly
+    # command('print_hello', PrintHelloCommand)
+    if command_cls:
+        return decorator(command_cls)
+
+    return decorator
 
 
 # --------------------
