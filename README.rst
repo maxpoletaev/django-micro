@@ -38,7 +38,7 @@ Usage
 .. code-block:: python
 
     from django_micro import configure, route, run
-    from django.shortcuts import render
+    from django.http import HttpResponse
 
     DEBUG = True
     configure(locals())
@@ -47,7 +47,7 @@ Usage
     @route(r'^$', name='index')
     def show_index(request):
         name = request.GET.get('name', 'World')
-        return render(request, 'index.html', {'name': name})
+        return HttpResponse('Hello, {}!'.format(name))
 
 
     # expose wsgi application
