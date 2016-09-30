@@ -53,13 +53,13 @@ Usage
     # expose wsgi application
     application = run()
 
-
 On localhost, an application runs with the built-in ``runserver`` command and deploys as a standard WSGI application. No difference, no magick.
 
 .. code-block::
 
     $ python app.py runserver
     $ gunicorn app --bind localhost:8000
+    $ uwsgi --wsgi-file app.py --http localhost:8000
 
 
 Related projects
