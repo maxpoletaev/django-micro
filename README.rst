@@ -9,6 +9,8 @@ Django Micro
 
 Django Micro — Lightweight wrapper for using Django as a microframework and writing small applications in a single file.
 
+**tl;dr:** See an example_ of full-featured application.
+
 
 Features
 ========
@@ -21,8 +23,6 @@ Features
 - Admin interface
 - Third party apps
 
-**tl;dr:** See an example_ of full-featured application.
-
 
 Insallation
 ===========
@@ -32,25 +32,36 @@ Insallation
     $ pip install django-micro
 
 
-Usage
-=====
+Quick start
+===========
 
-.. code-block:: python
+1. Create ``app.py`` file with following content.
 
-    from django_micro import configure, route, run
-    from django.http import HttpResponse
+   .. code-block:: python
 
-    DEBUG = True
-    configure(locals())
+      from django_micro import configure, route, run
+      from django.http import HttpResponse
 
-
-    @route(r'^$', name='index')
-    def show_index(request):
-        name = request.GET.get('name', 'World')
-        return HttpResponse('Hello, {}!'.format(name))
+      DEBUG = True
+      configure(locals())
 
 
-    application = run()
+      @route(r'^$', name='index')
+      def show_index(request):
+          name = request.GET.get('name', 'World')
+          return HttpResponse('Hello, {}!'.format(name))
+
+
+      application = run()
+
+2. Run application
+
+   .. code-block::
+
+      $ python app.py runserver
+
+
+**Note** parent directory of ``app.py`` file should be valid python module name. Under the hood Micro adds this directory into ``INSTALLED_APPS`` and use it as normal django application.
 
 
 Compatibility
@@ -58,7 +69,8 @@ Compatibility
 
 We will try to support only latest stable version of Django. This is the only way to keep codebase of django-micro clean, without hacks for many versions of Django.
 
-**Current supported version:** Django>=1.10,<1.11
+**Django version:** >=1.10, <1.11
+**Python version:** 2.7, >=3.4
 
 
 Run and deployment
@@ -132,10 +144,10 @@ Also ``route`` may be used with class-based views:
             return HttpResponse('hello')
 
 
-ORM Models and migrations
-=========================
+Models and migrations
+=====================
 
-Django Micro normally works with models and migrations. Just define model into your ``app.py`` file. If you need migrations, create ``migrations`` directory (with the ``__init__.py`` file) near ``app.py``.
+Micro normally works with models and migrations. Just define model in your ``app.py`` file. If you need migrations, create ``migrations`` directory next to the ``app.py``.
 
 .. code-block:: python
 
@@ -149,7 +161,7 @@ Django Micro normally works with models and migrations. Just define model into y
 
 **Note** you always should set ``app_label`` attribute in ``Meta`` of your models. For sample, if application placed as ``blog/app.py``, ``app_label`` must have a ``blog`` value.
 
-For getting ``app_label`` you can use  ``get_app_label`` shortcut.
+For getting ``app_label`` you can use ``get_app_label`` shortcut.
 
 .. code-block:: python
 
