@@ -1,5 +1,7 @@
-from django_micro import configure, route, template, run, get_app_label
 import os
+
+from django_micro import (
+    configure, command, route, template, run, get_app_label)
 
 
 # -------------------
@@ -119,7 +121,6 @@ def say_hello(name):
 # --------------------
 
 from django.core.management.base import BaseCommand
-from django_micro import command
 
 
 @command('print_hello')
