@@ -1,13 +1,15 @@
-from django.core.exceptions import ImproperlyConfigured
-from django.conf import settings
-from django.conf.urls import url
 import inspect
-import django
 import os
 import sys
 
-__all__ = ['command', 'configure', 'run', 'route', 'template', 'urlpatterns']
+import django
+from django.conf import settings
+from django.conf.urls import url
+from django.core import management
+from django.core.exceptions import ImproperlyConfigured
+from django.template import Library
 
+__all__ = ['command', 'configure', 'run', 'route', 'template', 'urlpatterns']
 
 # -------------------
 # Views and routes
@@ -21,6 +23,7 @@ def route(pattern, *args, **kwargs):
         kwargs.setdefault('name', view_fn.__name__)
         urlpatterns.append(url(pattern, view_fn, *args, **kwargs))
         return view_fn
+
     return wrapper
 
 
@@ -28,7 +31,6 @@ def route(pattern, *args, **kwargs):
 # Template tags
 # -------------------
 
-from django.template import Library
 register = template = Library()
 
 
@@ -72,7 +74,6 @@ def configure(config_dict={}):
 # Management commands
 # --------------------
 
-from django.core import management
 _commands = {}
 
 
