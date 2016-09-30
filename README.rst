@@ -35,33 +35,32 @@ Insallation
 Quick start
 ===========
 
-1. Create ``app.py`` file with following content.
+Create ``app.py`` file with following content.
 
-   .. code-block:: python
+.. code-block:: python
 
-      from django_micro import configure, route, run
-      from django.http import HttpResponse
+    from django_micro import configure, route, run
+    from django.http import HttpResponse
 
-      DEBUG = True
-      configure(locals())
-
-
-      @route(r'^$', name='index')
-      def show_index(request):
-          name = request.GET.get('name', 'World')
-          return HttpResponse('Hello, {}!'.format(name))
+    DEBUG = True
+    configure(locals())
 
 
-      application = run()
-
-2. Run application
-
-   .. code-block::
-
-      $ python app.py runserver
+    @route(r'^$', name='index')
+    def show_index(request):
+        name = request.GET.get('name', 'World')
+        return HttpResponse('Hello, {}!'.format(name))
 
 
-**Note** parent directory of ``app.py`` file should be valid python module name. Under the hood Micro adds this directory into ``INSTALLED_APPS`` and use it as normal django application.
+    application = run()
+
+Run the application.
+
+.. code-block::
+
+    $ python app.py runserver
+
+**Note:** Parent directory of ``app.py`` file should be valid python module name. Under the hood Micro adds this directory into ``INSTALLED_APPS`` and use it as normal django application.
 
 
 Compatibility
@@ -69,8 +68,8 @@ Compatibility
 
 We will try to support only latest stable version of Django. This is the only way to keep codebase of django-micro clean, without hacks for many versions of Django.
 
-**Django version:** >=1.10, <1.11
-**Python version:** 2.7, >=3.4
+- **Django version:** >=1.10, <1.11
+- **Python version:** 2.7, >=3.4
 
 
 Run and deployment
