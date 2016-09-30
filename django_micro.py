@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 import inspect
 import os
 import sys
@@ -20,11 +22,10 @@ _app_module = None
 _app_label = None
 
 
-def _detect_app_module():
-    global _app_module
-    _app_module = sys.modules[inspect.stack()[2][0].f_locals['__name__']]
-    global _app_label
-    _app_label = os.path.basename(os.path.dirname(os.path.abspath(_app_module.__file__)))
+def _setup_module():
+    app_module = sys.modules[inspect.stack()[2][0].f_locals['__name__']]
+    app_label = os.path.basename(os.path.dirname(os.path.abspath(app_module.__file__)))
+    globals().update(_app_module=app_module, _app_label=app_label)
 
 
 def get_app_label():
@@ -69,7 +70,7 @@ register = template = Library()
 # --------------------
 
 def configure(config_dict={}):
-    _detect_app_module()  # find in the stack module that calls this function
+    _setup_module()  # find in the stack module that calls this function
     config_dict.setdefault('TEMPLATE_DIRS', ['templates'])
 
     kwargs = {
