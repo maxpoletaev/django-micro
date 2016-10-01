@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 import inspect
 import os
 import sys
@@ -9,7 +11,30 @@ from django.core import management
 from django.core.exceptions import ImproperlyConfigured
 from django.template import Library
 
-__all__ = ['command', 'configure', 'run', 'route', 'template', 'urlpatterns']
+__all__ = ['command', 'configure', 'run', 'route', 'template']
+
+
+# -------------------
+# Application module
+# -------------------
+
+_app_module = None
+_app_label = None
+
+
+def _setup_module():
+    app_module = sys.modules[inspect.stack()[2][0].f_locals['__name__']]
+    app_label = os.path.basename(os.path.dirname(os.path.abspath(app_module.__file__)))
+    globals().update(_app_module=app_module, _app_label=app_label)
+
+
+def get_app_label():
+    if not _app_label:
+        raise ImproperlyConfigured(
+            "Application label is not detected. "
+            "Check whether the configure() was called.")
+    return _app_label
+
 
 # -------------------
 # Views and routes
@@ -18,13 +43,19 @@ __all__ = ['command', 'configure', 'run', 'route', 'template', 'urlpatterns']
 urlpatterns = []
 
 
-def route(pattern, *args, **kwargs):
-    def wrapper(view_fn):
-        kwargs.setdefault('name', view_fn.__name__)
-        urlpatterns.append(url(pattern, view_fn, *args, **kwargs))
-        return view_fn
+def route(pattern, view_func=None, *args, **kwargs):
+    def decorator(view_func):
+        if hasattr(view_func, 'as_view'):
+            view_func = view_func.as_view()
+        urlpatterns.append(url(pattern, view_func, *args, **kwargs))
+        return view_func
 
-    return wrapper
+    # allow use decorator directly
+    # route(r'^$', show_index)
+    if view_func:
+        return decorator(view_func)
+
+    return decorator
 
 
 # -------------------
@@ -38,21 +69,12 @@ register = template = Library()
 # Configuration
 # --------------------
 
-def get_parent_module(offset=0):
-    name = inspect.stack()[2 + offset][0].f_locals['__name__']
-    return sys.modules[name]
-
-
-def get_app_label():
-    module = get_parent_module(1)
-    return os.path.basename(os.path.dirname(os.path.abspath(module.__file__)))
-
-
 def configure(config_dict={}):
+    _setup_module()  # find in the stack module that calls this function
     config_dict.setdefault('TEMPLATE_DIRS', ['templates'])
 
     kwargs = {
-        'INSTALLED_APPS': [get_app_label()] + config_dict.pop('INSTALLED_APPS', []),
+        'INSTALLED_APPS': [_app_label] + config_dict.pop('INSTALLED_APPS', []),
         'ROOT_URLCONF': __name__,
         'TEMPLATES': [{
             'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -89,20 +111,24 @@ def patch_get_commands():
     management.get_commands = patched_get_commands
 
 
-def command(name):
-    app_label = get_app_label()
+def command(name, command_cls=None):
     if not getattr(management.get_commands, 'patched', False):
         patch_get_commands()
 
-    def wrapper(command_cls):
+    def decorator(command_cls):
         command_instance = command_cls()
         # very dirty hack for extracting app name
         # from command (via https://goo.gl/1c1Irj)
-        command_instance.rpartition = lambda x: [app_label]
+        command_instance.rpartition = lambda x: [_app_label]
         _commands[name] = command_instance
         return command_cls
 
-    return wrapper
+    # allow use decorator directly
+    # command('print_hello', PrintHelloCommand)
+    if command_cls:
+        return decorator(command_cls)
+
+    return decorator
 
 
 # --------------------
@@ -110,13 +136,10 @@ def command(name):
 # --------------------
 
 def run():
-    parent = get_parent_module()
-
     if not settings.configured:
-        msg = "You should call configure() after configuration define."
-        raise ImproperlyConfigured(msg)
+        raise ImproperlyConfigured("You should call configure() after configuration define.")
 
-    if parent.__name__ == '__main__':
+    if _app_module.__name__ == '__main__':
         from django.core.management import execute_from_command_line
         execute_from_command_line(sys.argv)
     else:

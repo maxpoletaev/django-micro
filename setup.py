@@ -5,13 +5,13 @@ setup(
     description='Django as microframework',
     keywords='django microframework',
     py_modules=['django_micro'],
-    version='1.0.0',
+    version='1.1.0',
     author='Max Poletaev',
     author_email='max.poletaev@gmail.com',
     url='https://github.com/zenwalker/django-micro',
     license='BSD',
     install_requires=[
-        'django>=1.10',
+        'django>=1.10,<1.11',
     ],
     classifiers=[
         'Development Status :: 4 - Beta',

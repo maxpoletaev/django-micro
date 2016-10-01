@@ -1,6 +1,7 @@
-from django_micro import configure, route, template, run, urlpatterns
-from django.conf.urls import url
 import os
+
+from django_micro import (
+    configure, command, route, template, run, get_app_label)
 
 
 # -------------------
@@ -9,7 +10,7 @@ import os
 
 DEBUG = True
 STATIC_URL = '/static/'
-BASE_DIR = os.path.dirname(__file__)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -60,7 +61,7 @@ class Post(models.Model):
     create_date = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        app_label = 'example'
+        app_label = get_app_label()
         ordering = ('-create_date',)
 
 
@@ -69,19 +70,26 @@ class Post(models.Model):
 # -------------------
 
 from django.shortcuts import render, get_object_or_404
+from django.views.generic import View
+from django.http import HttpResponse
 
 
 @route(r'^$', name='index')
 def show_index(request):
     posts = Post.objects.all()
-    name = request.GET.get('name', 'Django')
-    return render(request, 'index.html', {'name': name, 'posts': posts})
+    return render(request, 'index.html', {'posts': posts})
 
 
 @route(r'^blog/(\d+)$', name='post')
 def show_post(request, post_id):
     post = get_object_or_404(Post, id=post_id)
     return render(request, 'post.html', {'post': post})
+
+
+@route(r'^class-based$')
+class ClassBasedView(View):
+    def get(self, request):
+        return HttpResponse('Hello from class-based view')
 
 
 # -------------------
@@ -96,7 +104,7 @@ class PostAdmin(admin.ModelAdmin):
     pass
 
 
-urlpatterns.append(url('^admin/', admin.site.urls))
+route(r'^admin/', admin.site.urls)
 
 
 # -------------------
@@ -113,7 +121,6 @@ def say_hello(name):
 # --------------------
 
 from django.core.management.base import BaseCommand
-from django_micro import command
 
 
 @command('print_hello')
