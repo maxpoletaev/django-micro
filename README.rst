@@ -24,7 +24,7 @@ Features
 See an example_ using all of these features.
 
 
-Insallation
+Installation
 ===========
 
 .. code-block::
