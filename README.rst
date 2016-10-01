@@ -6,7 +6,6 @@ Django Micro
     https://img.shields.io/pypi/v/django-micro.svg
     :target: https://pypi.python.org/pypi/django-micro
 
-
 Django Micro — Lightweight wrapper for using Django as a microframework and writing small applications in a single file.
 
 **tl;dr:** See an example_ of full-featured application.
@@ -83,7 +82,7 @@ On localhost, an application runs with the built-in ``runserver`` command and de
     $ gunicorn app --bind localhost:8000
     $ uwsgi --wsgi-file app.py --http localhost:8000
 
-This behavior provided by single string: ``application = run()``. The strongest magic in django-micro. This is actually just a shortcut to the following code.
+This behaviour provided by single string: ``application = run()``. The strongest magic in django-micro. This is actually just a shortcut to the following code.
 
 .. code-block:: python
 
@@ -114,7 +113,7 @@ The good way is define all configuration in global namespace and call ``configur
 Views and routes
 ================
 
-Use as decorator:
+Routing is wrapped in single function ``route``. You can use it as decorator.
 
 .. code-block:: python
 
@@ -124,7 +123,7 @@ Use as decorator:
     def show_index(request):
         return HttpResponse('hello')
 
-Use directly:
+Or use directly.
 
 .. code-block:: python
 
@@ -133,7 +132,7 @@ Use directly:
 
     route(r'^$' show_index, name='index')
 
-Also ``route`` may be used with class-based views:
+Also ``route`` may be used with class-based views.
 
 .. code-block:: python
 
@@ -141,6 +140,23 @@ Also ``route`` may be used with class-based views:
     class IndexView(View):
         def get(request):
             return HttpResponse('hello')
+
+    # or directly
+    route(r'^$', IndexView.as_view(), name='index')
+
+You always can access to ```urlpatterns`` for using the low-level API.
+
+.. code-block:: python
+
+    from django.conf.urls import url
+    import django_micro as micro
+
+    micro.urlpatterns += [
+        url(r'^$', mainpage, name='mainpage'),
+    ]
+
+
+**Note:** You can include third-party apps into Micro ``urlpatterns``, but currently can't use Micro as third-party app. Micro — is singleton. You can't create more that one instance of it.
 
 
 Models and migrations
@@ -158,7 +174,7 @@ Micro normally works with models and migrations. Just define model in your ``app
       class Meta:
           app_label = 'blog'
 
-**Note** you always should set ``app_label`` attribute in ``Meta`` of your models. For sample, if application placed as ``blog/app.py``, ``app_label`` must have a ``blog`` value.
+**Note:** You always should set ``app_label`` attribute in ``Meta`` of your models. For sample: if application is placed in ``blog/app.py``, app_label must have a ``blog`` value.
 
 For getting ``app_label`` you can use ``get_app_label`` shortcut.
 
@@ -167,6 +183,8 @@ For getting ``app_label`` you can use ``get_app_label`` shortcut.
     from django_micro import get_app_label
 
     class Post:
+        # ...
+
         class Meta:
             app_label = get_app_label()
 
@@ -178,7 +196,7 @@ Related projects
 
 - importd_ — Popular implementation of django-as-microframework idea, but over-engineered, magical and not intuitive.
 
-- djmicro_ — Good and lightweight wrapper, but just an experimenal, without support many features out-of-the-box, such as models and migrations. **deprecated**
+- djmicro_ — Good and lightweight wrapper, but just an experimental, without support many features out-of-the-box, such as models and migrations. **deprecated**
 
 
 .. _example: https://github.com/zenwalker/django-micro/tree/master/example
