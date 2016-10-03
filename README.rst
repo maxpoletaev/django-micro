@@ -14,10 +14,10 @@ Django Micro — Lightweight wrapper for using Django as a microframework and wr
 Features
 ========
 
-- Configuration
-- Views and routes
-- Models (with migrations)
-- Custom management commands
+- `Configuration`_
+- `Views and routes`_
+- `Models and migrations`_
+- `Management commands`_
 - Custom template tags
 - Admin interface
 - Third party apps
@@ -191,12 +191,29 @@ For getting ``app_label`` you can use ``get_app_label`` shortcut.
 You also can place models separately in ``models.py`` file. In this case ``app_label`` is not required. But this is not a micro-way ;)
 
 
+Management commands
+===================
+
+Now you can create any management cli command without creating file in ``yourapp/management/commands``. Just defne command class in your ``app.py`` and wrap it to ``@command`` decorator.
+
+.. code-block:: python
+
+    from django.core.management.base import BaseCommand
+
+    @command('print_hello')
+    class PrintHelloCommand(BaseCommand):
+        def handle(self, *args, **options):
+            self.stdout.write('Hello, Django!')
+
+Unfortunately, for this feature Micro uses a few dirty hacks. But everything works be fine if you don't think about it ;)
+
+
 Related projects
 ================
 
 - importd_ — Popular implementation of django-as-microframework idea, but over-engineered, magical and not intuitive.
 
-- djmicro_ — Good and lightweight wrapper, but just an experimental, without support many features out-of-the-box, such as models and migrations. **deprecated**
+- djmicro_ — Good and lightweight wrapper, but just an experimental, without support many features out-of-the-box, such as migrations or management commands **deprecated**
 
 
 .. _example: https://github.com/zenwalker/django-micro/tree/master/example
