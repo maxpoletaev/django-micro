@@ -144,7 +144,7 @@ Also ``route`` may be used with class-based views.
     # or directly
     route(r'^$', IndexView.as_view(), name='index')
 
-You always can access to ```urlpatterns`` for using the low-level API.
+You always can access to ``urlpatterns`` for using the low-level API.
 
 .. code-block:: python
 
@@ -199,6 +199,7 @@ Now you can create any management cli command without creating file in ``yourapp
 .. code-block:: python
 
     from django.core.management.base import BaseCommand
+    from django_micro import command
 
     @command('print_hello')
     class PrintHelloCommand(BaseCommand):
