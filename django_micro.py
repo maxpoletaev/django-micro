@@ -6,10 +6,11 @@ import django
 from django.conf import settings
 from django.conf.urls import url
 from django.core import management
-from django.core.exceptions import ImproperlyConfigured
 from django.template import Library
+from django.core.exceptions import ImproperlyConfigured
 
 __all__ = ['command', 'configure', 'run', 'route', 'template']
+sys.path.append(os.path.abspath('..'))
 
 
 # -------------------
