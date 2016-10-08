@@ -2,7 +2,14 @@
 Changelog
 =========
 
+1.2.0 - 2016-10-08
+==================
+
+- support relative and recursive imports
+- only way for absolute imports: ``import blog.models`` but not ``import models``
+
 1.1.1 - 2016-10-05
+==================
 
 - fix no module named %yourapp%
 

@@ -65,7 +65,7 @@ Run the application.
 Compatibility
 =============
 
-We will try to support only latest stable version of Django. This is the only way to keep codebase of django-micro clean, without hacks for many versions of Django.
+Micro based only on latest stable version of Django. This is the only way to keep codebase of django-micro clean, without hacks for many versions of Django.
 
 - **Django version:** >=1.10, <1.11
 - **Python version:** 2.7, >=3.4

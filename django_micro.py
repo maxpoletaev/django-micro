@@ -10,7 +10,9 @@ from django.template import Library
 from django.core.exceptions import ImproperlyConfigured
 
 __all__ = ['command', 'configure', 'run', 'route', 'template']
-sys.path.append(os.path.abspath('..'))
+
+# use parent directory as root import path
+sys.path[0] = os.path.abspath('..')
 
 
 # -------------------
@@ -24,6 +26,14 @@ _app_label = None
 def _setup_module():
     app_module = sys.modules[inspect.stack()[2][0].f_locals['__name__']]
     app_label = os.path.basename(os.path.dirname(os.path.abspath(app_module.__file__)))
+    file_name = app_module.__file__.split('.')[0]
+
+    # register __main__ module as named module for import it without recursion
+    sys.modules['{}.{}'.format(app_label, file_name)] = app_module
+
+    # allow relative imports for app.py
+    app_module.__package__ = app_label
+
     globals().update(_app_module=app_module, _app_label=app_label)
 
 
