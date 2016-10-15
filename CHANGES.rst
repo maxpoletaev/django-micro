@@ -2,6 +2,11 @@
 Changelog
 =========
 
+master
+======
+
+- improve loading application module: allow relative imports before ``configure`` call
+
 1.2.0 - 2016-10-08
 ==================
 

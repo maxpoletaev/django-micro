@@ -79,8 +79,8 @@ On localhost, an application runs with the built-in ``runserver`` command and de
 .. code-block::
 
     $ python app.py runserver
-    $ gunicorn app --bind localhost:8000
-    $ uwsgi --wsgi-file app.py --http localhost:8000
+    $ gunicorn example.app --bind localhost:8000
+    $ uwsgi --module example.app --http localhost:8000
 
 This behaviour provided by single string: ``application = run()``. The strongest magic in django-micro. This is actually just a shortcut to the following code.
 
@@ -107,6 +107,7 @@ The good way is define all configuration in global namespace and call ``configur
 
     DEBUG = True
     TEMPLATE_DIRS = ['templates']
+
     configure(locals())
 
 
@@ -168,7 +169,7 @@ Micro normally works with models and migrations. Just define model in your ``app
 
     from django.db import models
 
-    class Post:
+    class Post(models.Model):
       title = models.CharField(max_length=255)
 
       class Meta:
@@ -181,10 +182,9 @@ For getting ``app_label`` you can use ``get_app_label`` shortcut.
 .. code-block:: python
 
     from django_micro import get_app_label
+    from django.db import models
 
-    class Post:
-        # ...
-
+    class Post(models.Model):
         class Meta:
             app_label = get_app_label()
 

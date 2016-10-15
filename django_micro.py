@@ -1,6 +1,7 @@
+from importlib import import_module
 import inspect
-import os
 import sys
+import os
 
 import django
 from django.conf import settings
@@ -9,10 +10,7 @@ from django.core import management
 from django.template import Library
 from django.core.exceptions import ImproperlyConfigured
 
-__all__ = ['command', 'configure', 'run', 'route', 'template']
-
-# use parent directory as root import path
-sys.path[0] = os.path.abspath('..')
+__all__ = ['command', 'configure', 'run', 'route', 'template', 'get_app_label']
 
 
 # -------------------
@@ -23,26 +21,41 @@ _app_module = None
 _app_label = None
 
 
-def _setup_module():
-    app_module = sys.modules[inspect.stack()[2][0].f_locals['__name__']]
-    app_label = os.path.basename(os.path.dirname(os.path.abspath(app_module.__file__)))
-    file_name = app_module.__file__.split('.')[0]
+def _create_app():
+    # try to find parent module in call stack
+    app_module = None
+    for frame in inspect.stack():
+        module_name = frame[0].f_locals.get('__name__')
+        if module_name and module_name != 'django_micro':
+            app_module = sys.modules[module_name]
+            break
 
-    # register __main__ module as named module for import it without recursion
-    sys.modules['{}.{}'.format(app_label, file_name)] = app_module
+    # extract directory, filename and app label from parent module
+    app_dirname = os.path.dirname(os.path.abspath(app_module.__file__))
+    app_label = os.path.basename(app_dirname)
+    app_file_name = app_module.__file__.split('.')[0]
+    app_module_name = '{}.{}'.format(app_label, app_file_name)
 
-    # allow relative imports for app.py
+    # use parent directory of application as import root
+    sys.path[0] = os.path.dirname(app_dirname)
+
+    # allow relative import from app.py
     app_module.__package__ = app_label
+    import_module(app_label)
+
+    if app_module.__name__ != app_module_name:
+        # allow recursive import app.py
+        sys.modules[app_module_name] = app_module
 
     globals().update(_app_module=app_module, _app_label=app_label)
 
 
 def get_app_label():
-    if not _app_label:
-        raise ImproperlyConfigured(
-            "Application label is not detected. "
-            "Check whether the configure() was called.")
     return _app_label
+
+
+if not _app_module:
+    _create_app()
 
 
 # -------------------
@@ -79,7 +92,6 @@ register = template = Library()
 # --------------------
 
 def configure(config_dict={}):
-    _setup_module()  # find in the stack module that calls this function
     config_dict.setdefault('TEMPLATE_DIRS', ['templates'])
 
     kwargs = {

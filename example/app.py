@@ -1,7 +1,14 @@
 import os
 
-from django_micro import (
-    configure, command, route, template, run, get_app_label)
+from django_micro import (configure, command, route,
+                         template, run, get_app_label)
+
+from django.shortcuts import render, get_object_or_404
+from django.core.management.base import BaseCommand
+from django.views.generic import View
+from django.http import HttpResponse
+from django.contrib import admin
+from django.db import models
 
 
 # -------------------
@@ -52,9 +59,6 @@ configure(locals())
 # Models
 # -------------------
 
-from django.db import models
-
-
 class Post(models.Model):
     title = models.CharField(max_length=255)
     content = models.TextField(blank=True)
@@ -68,11 +72,6 @@ class Post(models.Model):
 # -------------------
 # Views and routes
 # -------------------
-
-from django.shortcuts import render, get_object_or_404
-from django.views.generic import View
-from django.http import HttpResponse
-
 
 @route(r'^$', name='index')
 def show_index(request):
@@ -96,9 +95,6 @@ class ClassBasedView(View):
 # Admin interface
 # -------------------
 
-from django.contrib import admin
-
-
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
     pass
@@ -119,9 +115,6 @@ def say_hello(name):
 # --------------------
 # Management commands
 # --------------------
-
-from django.core.management.base import BaseCommand
-
 
 @command('print_hello')
 class PrintHelloCommand(BaseCommand):
