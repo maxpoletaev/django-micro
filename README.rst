@@ -6,6 +6,9 @@ Django Micro
     https://img.shields.io/pypi/v/django-micro.svg
     :target: https://pypi.python.org/pypi/django-micro
 
+.. image::
+    https://img.shields.io/badge/status-stable-brightgreen.svg
+
 Django Micro — Lightweight wrapper for using Django as a microframework and writing small applications in a single file.
 
 **tl;dr:** See an example_ of full-featured application.

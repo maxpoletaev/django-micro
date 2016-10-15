@@ -14,7 +14,6 @@ setup(
         'django>=1.10,<1.11',
     ],
     classifiers=[
-        'Development Status :: 4 - Beta',
         'Programming Language :: Python',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3.4',
