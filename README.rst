@@ -100,7 +100,7 @@ This behaviour provided by single string: ``application = run()``. The strongest
 Configuration
 =============
 
-Call of the ``configure`` function should be placed at top of your application. Before definition views, models and other.
+Call of the ``configure`` function should be placed at top of your application. Before definition views, models and imports another modules. Yes, it may violate PEP8. But this is the only way. For sample: you can't import any model from another application if Django is not configured.
 
 The good way is define all configuration in global namespace and call ``configure`` with ``locals()`` argument. Don't worry, configuration takes only *UPPERCASE* variables.
 
@@ -209,7 +209,17 @@ Now you can create any management cli command without creating file in ``yourapp
         def handle(self, *args, **options):
             self.stdout.write('Hello, Django!')
 
-Unfortunately, for this feature Micro uses a few dirty hacks. But everything works be fine if you don't think about it ;)
+You also can create function-based commands.
+
+.. code-block:: python
+
+    from django_micro import command
+
+    @command
+    def print_hello(cmd, **options):
+        cmd.stdout.write('Hello, Django!')
+
+Unfortunately the ``command`` decorator uses a few dirty hacks for commands registration. But everything works be fine if you don't think about it ;)
 
 
 Related projects

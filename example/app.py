@@ -1,19 +1,9 @@
-import os
-
-from django_micro import (configure, command, route,
-                         template, run, get_app_label)
-
-from django.shortcuts import render, get_object_or_404
-from django.core.management.base import BaseCommand
-from django.views.generic import View
-from django.http import HttpResponse
-from django.contrib import admin
-from django.db import models
-
-
 # -------------------
 # Configuration
 # -------------------
+
+import os
+from django_micro import configure
 
 DEBUG = True
 STATIC_URL = '/static/'
@@ -53,6 +43,20 @@ DATABASES = {
 }
 
 configure(locals())
+
+
+# -------------------
+# Imports
+# -------------------
+
+from django.shortcuts import render, get_object_or_404
+from django.core.management.base import BaseCommand
+from django.views.generic import View
+from django.http import HttpResponse
+from django.contrib import admin
+from django.db import models
+
+from django_micro import command, route, template, run, get_app_label
 
 
 # -------------------
@@ -117,9 +121,14 @@ def say_hello(name):
 # --------------------
 
 @command('print_hello')
-class PrintHelloCommand(BaseCommand):
+class HelloCommand(BaseCommand):
     def handle(self, *args, **options):
         self.stdout.write('Hello, Django!')
+
+
+@command()
+def print_hello_func(cmd, **options):
+    cmd.stdout.write('Hello from function-based command!')
 
 
 # -------------------

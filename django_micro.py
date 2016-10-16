@@ -8,6 +8,7 @@ from django.conf import settings
 from django.conf.urls import url
 from django.core import management
 from django.template import Library
+from django.core.management.base import BaseCommand
 from django.core.exceptions import ImproperlyConfigured
 
 __all__ = ['command', 'configure', 'run', 'route', 'template', 'get_app_label']
@@ -21,16 +22,9 @@ _app_module = None
 _app_label = None
 
 
-def _create_app():
-    # try to find parent module in call stack
-    app_module = None
-    for frame in inspect.stack():
-        module_name = frame[0].f_locals.get('__name__')
-        if module_name and module_name != 'django_micro':
-            app_module = sys.modules[module_name]
-            break
-
+def _create_app(stack):
     # extract directory, filename and app label from parent module
+    app_module = sys.modules[stack[1][0].f_locals['__name__']]
     app_dirname = os.path.dirname(os.path.abspath(app_module.__file__))
     app_label = os.path.basename(app_dirname)
     app_file_name = app_module.__file__.split('.')[0]
@@ -51,11 +45,11 @@ def _create_app():
 
 
 def get_app_label():
+    if not _app_label:
+        raise ImproperlyConfigured(
+            "Application label is not detected. "
+            "Check whether the configure() was called.")
     return _app_label
-
-
-if not _app_module:
-    _create_app()
 
 
 # -------------------
@@ -92,6 +86,7 @@ register = template = Library()
 # --------------------
 
 def configure(config_dict={}):
+    _create_app(inspect.stack())  # load application from parent module
     config_dict.setdefault('TEMPLATE_DIRS', ['templates'])
 
     kwargs = {
@@ -132,16 +127,32 @@ def patch_get_commands():
     management.get_commands = patched_get_commands
 
 
-def command(name, command_cls=None):
+def command(name=None, command_cls=None):
     if not getattr(management.get_commands, 'patched', False):
         patch_get_commands()
 
+    if inspect.isfunction(name):
+        # Shift arguments if decroator called without brackets
+        command_cls = name
+        name = None
+
     def decorator(command_cls):
-        command_instance = command_cls()
-        # very dirty hack for extracting app name
-        # from command (via https://goo.gl/1c1Irj)
+        command_name = name
+
+        if inspect.isclass(command_cls):
+            command_instance = command_cls()
+        else:
+            # transform function-based command to class
+            command_name = name or command_cls.__name__
+            command_instance = type('Command', (BaseCommand,), {'handle': command_cls})()
+
+        if not command_name:
+            raise MicroException("Class-based commands requires name argument.")
+
+        # Hack for extracting app name from command (https://goo.gl/1c1Irj)
         command_instance.rpartition = lambda x: [_app_label]
-        _commands[name] = command_instance
+
+        _commands[command_name] = command_instance
         return command_cls
 
     # allow use decorator directly
@@ -150,6 +161,14 @@ def command(name, command_cls=None):
         return decorator(command_cls)
 
     return decorator
+
+
+# --------------------
+# Other tools
+# --------------------
+
+class MicroException(Exception):
+    pass
 
 
 # --------------------
