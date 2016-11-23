@@ -14,14 +14,14 @@ Django Micro — Lightweight wrapper for using Django as a microframework and wr
 **tl;dr:** See an example_ of full-featured application.
 
 
-Features
-========
+What's works
+============
 
 - `Configuration`_
 - `Views and routes`_
 - `Models and migrations`_
 - `Management commands`_
-- Custom template tags
+- `Custom template tags`_
 - Admin interface
 - Third party apps
 
@@ -166,7 +166,16 @@ You always can access to ``urlpatterns`` for using the low-level API.
 Models and migrations
 =====================
 
-Micro normally works with models and migrations. Just define model in your ``app.py`` file. If you need migrations, create ``migrations`` directory next to the ``app.py``.
+Micro normally works with models and migrations. Just define model in your ``app.py`` file. If you need migrations, create ``migrations`` directory next to the ``app.py`` and call ``python app.py makemigrations``.
+
+.. code-block::
+
+    yourapp
+    ├── __init__.py
+    ├── app.py
+    └── migrations
+        ├── __init__.py
+        └── 0001_initial.py
 
 .. code-block:: python
 
@@ -222,12 +231,33 @@ You also can create function-based commands.
 Unfortunately the ``command`` decorator uses a few dirty hacks for commands registration. But everything works be fine if you don't think about it ;)
 
 
+Custom template tags
+====================
+
+Use ``template`` for register template tags. It works as default ``register`` object in template library.
+
+.. code-block:: python
+
+    from django_micro import template
+
+    @template.simple_tag
+    def print_hello(name):
+        return 'Hello, {}!'
+
+    @template.filter
+    def remove_spaces(value):
+      return value.replace(' ', '')
+
+
+You don't need use ``load`` tag. All template tags are global.
+
+
 Related projects
 ================
 
-- importd_ — Popular implementation of django-as-microframework idea, but over-engineered, magical and not intuitive.
+- importd_ — Popular implementation of django-as-microframework idea, but over-engineered and magical.
 
-- djmicro_ — Good and lightweight wrapper, but just an experimental, without support many features out-of-the-box, such as migrations or management commands **deprecated**
+- djmicro_ — Good and lightweight wrapper. I took a few ideas from there. But just an experimental, undocumented, with little functionality and **deprecated**.
 
 
 .. _example: https://github.com/zenwalker/django-micro/tree/master/example
