@@ -252,6 +252,12 @@ Use ``template`` for register template tags. It works as default ``register`` ob
 You don't need use ``load`` tag. All template tags are global.
 
 
+Who uses django-micro
+=====================
+
+- `storagl <https://github.com/zenwalker/storagl>`_ — simple storage for screenshots and other shared files with short direct links
+
+
 Related projects
 ================
 
