@@ -22,6 +22,7 @@ What's works
 - `Models and migrations`_
 - `Management commands`_
 - `Custom template tags`_
+- `Testing`_
 - Admin interface
 - Third party apps
 
@@ -250,6 +251,27 @@ Use ``template`` for register template tags. It works as default ``register`` ob
 
 
 You don't need use ``load`` tag. All template tags are global.
+
+
+Testing
+=======
+
+No magick. Use built-in test cases.
+
+.. code-block:: python
+
+    from django.test import TestCase
+
+    class TestIndexView(TestCase):
+        def test_success(self):
+            response = self.client.get('/')
+            self.assertEqual(response.status_code, 200)
+
+To run tests which defined in app.py use the following command:
+
+.. code-block::
+
+    $ python app.py test __main__
 
 
 Who uses django-micro

@@ -5,6 +5,13 @@ Changelog
 master
 ======
 
+- using ``BASE_DIR/templates`` as default templates dir
+- fix detection application name
+- testing support
+
+1.3.0 - 2016-10-17
+==================
+
 - add support function-based commands
 
 1.2.0 - 2016-10-08
@@ -19,7 +26,7 @@ master
 - fix no module named %yourapp%
 
 1.1.0 - 2016-10-01
-===============
+==================
 
 - ``route`` and ``command`` may be used directly, not only as decorator
 - add support class-based views for ``route`` decorator

@@ -26,8 +26,9 @@ def _create_app(stack):
     # extract directory, filename and app label from parent module
     app_module = sys.modules[stack[1][0].f_locals['__name__']]
     app_dirname = os.path.dirname(os.path.abspath(app_module.__file__))
+    app_file_name = os.path.basename(app_module.__file__).split('.')[0]
     app_label = os.path.basename(app_dirname)
-    app_file_name = app_module.__file__.split('.')[0]
+
     app_module_name = '{}.{}'.format(app_label, app_file_name)
 
     # use parent directory of application as import root
@@ -87,7 +88,9 @@ register = template = Library()
 
 def configure(config_dict={}):
     _create_app(inspect.stack())  # load application from parent module
-    config_dict.setdefault('TEMPLATE_DIRS', ['templates'])
+
+    if 'BASE_DIR' in config_dict:
+        config_dict.setdefault('TEMPLATE_DIRS', [os.path.join(config_dict['BASE_DIR'], 'templates')])
 
     kwargs = {
         'INSTALLED_APPS': [_app_label] + config_dict.pop('INSTALLED_APPS', []),

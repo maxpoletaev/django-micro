@@ -53,6 +53,7 @@ from django.shortcuts import render, get_object_or_404
 from django.core.management.base import BaseCommand
 from django.views.generic import View
 from django.http import HttpResponse
+from django.test import TestCase
 from django.contrib import admin
 from django.db import models
 
@@ -129,6 +130,16 @@ class HelloCommand(BaseCommand):
 @command()
 def print_hello_func(cmd, **options):
     cmd.stdout.write('Hello from function-based command!')
+
+
+# --------------------
+# Tests
+# --------------------
+
+class TestIndexView(TestCase):
+    def test_success(self):
+        response = self.client.get('/')
+        self.assertEqual(response.status_code, 200)
 
 
 # -------------------
