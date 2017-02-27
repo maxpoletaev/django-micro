@@ -5,6 +5,7 @@ Changelog
 master
 ======
 
+- ``MicroException`` renamed to ``DjangoMicroException``
 - using ``BASE_DIR/templates`` as default templates dir
 - fix detection application name
 - testing support

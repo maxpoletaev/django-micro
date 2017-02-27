@@ -13,13 +13,12 @@ from django.core.exceptions import ImproperlyConfigured
 
 __all__ = ['command', 'configure', 'run', 'route', 'template', 'get_app_label']
 
-
-# -------------------
-# Application module
-# -------------------
+register = template = Library()
+urlpatterns = []
 
 _app_module = None
 _app_label = None
+_commands = {}
 
 
 def _create_app(stack):
@@ -53,13 +52,6 @@ def get_app_label():
     return _app_label
 
 
-# -------------------
-# Views and routes
-# -------------------
-
-urlpatterns = []
-
-
 def route(pattern, view_func=None, *args, **kwargs):
     def decorator(view_func):
         if hasattr(view_func, 'as_view'):
@@ -74,17 +66,6 @@ def route(pattern, view_func=None, *args, **kwargs):
 
     return decorator
 
-
-# -------------------
-# Template tags
-# -------------------
-
-register = template = Library()
-
-
-# --------------------
-# Configuration
-# --------------------
 
 def configure(config_dict={}):
     _create_app(inspect.stack())  # load application from parent module
@@ -111,14 +92,7 @@ def configure(config_dict={}):
     django.setup()
 
 
-# --------------------
-# Management commands
-# --------------------
-
-_commands = {}
-
-
-def patch_get_commands():
+def _patch_get_commands():
     django_get_commands = management.get_commands
 
     def patched_get_commands():
@@ -132,7 +106,7 @@ def patch_get_commands():
 
 def command(name=None, command_cls=None):
     if not getattr(management.get_commands, 'patched', False):
-        patch_get_commands()
+        _patch_get_commands()
 
     if inspect.isfunction(name):
         # Shift arguments if decroator called without brackets
@@ -150,7 +124,7 @@ def command(name=None, command_cls=None):
             command_instance = type('Command', (BaseCommand,), {'handle': command_cls})()
 
         if not command_name:
-            raise MicroException("Class-based commands requires name argument.")
+            raise DajngoMicroException("Class-based commands requires name argument.")
 
         # Hack for extracting app name from command (https://goo.gl/1c1Irj)
         command_instance.rpartition = lambda x: [_app_label]
@@ -166,17 +140,9 @@ def command(name=None, command_cls=None):
     return decorator
 
 
-# --------------------
-# Other tools
-# --------------------
-
-class MicroException(Exception):
+class DajngoMicroException(Exception):
     pass
 
-
-# --------------------
-# Bootstrap
-# --------------------
 
 def run():
     if not settings.configured:

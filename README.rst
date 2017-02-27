@@ -171,7 +171,7 @@ Micro normally works with models and migrations. Just define model in your ``app
 
 .. code-block::
 
-    yourapp
+    blog
     ├── __init__.py
     ├── app.py
     └── migrations
@@ -183,12 +183,12 @@ Micro normally works with models and migrations. Just define model in your ``app
     from django.db import models
 
     class Post(models.Model):
-      title = models.CharField(max_length=255)
+        title = models.CharField(max_length=255)
 
-      class Meta:
-          app_label = 'blog'
+        class Meta:
+            app_label = 'blog'
 
-**Note:** You always should set ``app_label`` attribute in ``Meta`` of your models. For sample: if application is placed in ``blog/app.py``, app_label must have a ``blog`` value.
+**Note:** You always need to set ``app_label`` attribute in ``Meta`` of your models. For example, if application placed in ``blog/app.py``, app_label should be ``blog``.
 
 For getting ``app_label`` you can use ``get_app_label`` shortcut.
 
@@ -235,7 +235,7 @@ Unfortunately the ``command`` decorator uses a few dirty hacks for commands regi
 Custom template tags
 ====================
 
-Use ``template`` for register template tags. It works as default ``register`` object in template library.
+Use ``template`` for register template tags. It works same as a ``register`` object in tag library file.
 
 .. code-block:: python
 
@@ -247,10 +247,10 @@ Use ``template`` for register template tags. It works as default ``register`` ob
 
     @template.filter
     def remove_spaces(value):
-      return value.replace(' ', '')
+        return value.replace(' ', '')
 
 
-You don't need use ``load`` tag. All template tags are global.
+You don't need to use the ``load`` tag. All template tags are global.
 
 
 Testing
@@ -283,9 +283,9 @@ Who uses django-micro
 Related projects
 ================
 
-- importd_ — Popular implementation of django-as-microframework idea, but over-engineered and magical.
+- importd_ — Popular implementation of django-as-microframework idea, but over-engineered, in my opinion, and magical.
 
-- djmicro_ — Good and lightweight wrapper. I took a few ideas from there. But just an experimental, undocumented, with little functionality and **deprecated**.
+- djmicro_ — Good and lightweight wrapper. I took a few ideas from there. But just an experimental, undocumented, less functional and **deprecated**.
 
 
 .. _example: https://github.com/zenwalker/django-micro/tree/master/example
