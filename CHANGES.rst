@@ -2,8 +2,8 @@
 Changelog
 =========
 
-master
-======
+1.4.0 - 2017-03-05
+==================
 
 - ``MicroException`` renamed to ``DjangoMicroException``
 - using ``BASE_DIR/templates`` as default templates dir

@@ -101,7 +101,7 @@ This behaviour provided by single string: ``application = run()``. The strongest
 Configuration
 =============
 
-Call of the ``configure`` function should be placed at top of your application. Before definition views, models and imports another modules. Yes, it may violate PEP8. But this is the only way. For sample: you can't import any model from another application if Django is not configured.
+Call of the ``configure`` function should be placed at top of your application. Before definition views, models and imports another modules. Yes, it may violate PEP8. But this is the only way. You can't import any model from another application if Django is not configured.
 
 The good way is define all configuration in global namespace and call ``configure`` with ``locals()`` argument. Don't worry, configuration takes only *UPPERCASE* variables.
 
