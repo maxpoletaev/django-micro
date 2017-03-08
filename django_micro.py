@@ -124,7 +124,7 @@ def command(name=None, command_cls=None):
             command_instance = type('Command', (BaseCommand,), {'handle': command_cls})()
 
         if not command_name:
-            raise DajngoMicroException("Class-based commands requires name argument.")
+            raise DjangoMicroException("Class-based commands requires name argument.")
 
         # Hack for extracting app name from command (https://goo.gl/1c1Irj)
         command_instance.rpartition = lambda x: [_app_label]
@@ -140,7 +140,7 @@ def command(name=None, command_cls=None):
     return decorator
 
 
-class DajngoMicroException(Exception):
+class DjangoMicroException(Exception):
     pass
 
 
