@@ -78,7 +78,7 @@ def configure(config_dict={}):
         'ROOT_URLCONF': __name__,
         'TEMPLATES': [{
             'BACKEND': 'django.template.backends.django.DjangoTemplates',
-            'DIRS': config_dict.pop('TEMPLATE_DIRS'),
+            'DIRS': config_dict.pop('TEMPLATE_DIRS', []),
             'APP_DIRS': True,
             'OPTIONS': {
                 'context_processors': config_dict.pop('CONTEXT_PROCESSORS', []),
