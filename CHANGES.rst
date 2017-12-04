@@ -2,6 +2,11 @@
 Changelog
 =========
 
+1.5.0 - 2017-12-04
+
+- move to Django 2.0
+- use the new simplified routing syntax by default
+
 1.4.0 - 2017-03-05
 ==================
 

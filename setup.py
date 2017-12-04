@@ -2,23 +2,23 @@ from setuptools import setup
 
 setup(
     name='django-micro',
-    description='Django as microframework',
+    description='Django as a microframework',
     keywords='django microframework',
     py_modules=['django_micro'],
-    version='1.4.2',
+    version='1.5',
     author='Max Poletaev',
     author_email='max.poletaev@gmail.com',
     url='https://github.com/zenwalker/django-micro',
     license='BSD',
     install_requires=[
-        'django>=1.10,<1.12',
+        'django>=2.0,<2.1',
     ],
     classifiers=[
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
         'Framework :: Django',
-        'Framework :: Django :: 1.10',
+        'Framework :: Django :: 2.0',
     ],
 )

@@ -5,9 +5,9 @@ import os
 
 import django
 from django.conf import settings
-from django.conf.urls import url
 from django.core import management
 from django.template import Library
+from django.urls import path, re_path
 from django.core.management.base import BaseCommand
 from django.core.exceptions import ImproperlyConfigured
 
@@ -52,15 +52,18 @@ def get_app_label():
     return _app_label
 
 
-def route(pattern, view_func=None, *args, **kwargs):
+def route(pattern, view_func=None, regex=False, *args, **kwargs):
+    path_func = re_path if regex else path
+
     def decorator(view_func):
         if hasattr(view_func, 'as_view'):
             view_func = view_func.as_view()
-        urlpatterns.append(url(pattern, view_func, *args, **kwargs))
+
+        urlpatterns.append(path_func(pattern, view_func, *args, **kwargs))
         return view_func
 
     # allow use decorator directly
-    # route(r'^$', show_index)
+    # route('blog/', show_index)
     if view_func:
         return decorator(view_func)
 

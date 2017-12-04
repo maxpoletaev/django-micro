@@ -14,7 +14,7 @@ Django Micro — Lightweight wrapper for using Django as a microframework and wr
 **tl;dr:** See an example_ of full-featured application.
 
 
-What's works
+What’s works
 ============
 
 - `Configuration`_
@@ -49,8 +49,8 @@ Create ``app.py`` file with following content.
     configure(locals())
 
 
-    @route(r'^$', name='index')
-    def show_index(request):
+    @route('', name='homepage')
+    def homepage(request):
         name = request.GET.get('name', 'World')
         return HttpResponse('Hello, {}!'.format(name))
 
@@ -63,16 +63,16 @@ Run the application.
 
     $ python app.py runserver
 
-**Note:** Parent directory of ``app.py`` file should be valid python module name. Under the hood Micro adds this directory into ``INSTALLED_APPS`` and use it as normal django application.
+**Note:** The parent directory of ``app.py`` file should have valid python module name. Under the hood Micro adds this directory into ``INSTALLED_APPS`` and uses it as normal Django application.
 
 
 Compatibility
 =============
 
-Micro based only on latest stable version of Django. This is the only way to keep codebase of django-micro clean, without hacks for many versions of Django.
+The latest relase of django-micro supports only the latest stable release of Django. This is the only way to keep codebase of django-micro clean, without hacks for different versions of Django.
 
-- **Django version:** >=1.10, <1.12
-- **Python version:** 2.7, >=3.4
+- **Django version:** >=2.0, <2.1
+- **Python version:** >=3.4
 
 
 Run and deployment
@@ -86,7 +86,7 @@ On localhost, an application runs with the built-in ``runserver`` command and de
     $ gunicorn example.app --bind localhost:8000
     $ uwsgi --module example.app --http localhost:8000
 
-This behaviour provided by single string: ``application = run()``. The strongest magic in django-micro. This is actually just a shortcut to the following code.
+This behaviour is provided by the single string: ``application = run()`` which actually just a shortcut to the following code.
 
 .. code-block:: python
 
@@ -101,7 +101,7 @@ This behaviour provided by single string: ``application = run()``. The strongest
 Configuration
 =============
 
-Call of the ``configure`` function should be placed at top of your application. Before definition views, models and imports another modules. Yes, it may violate PEP8. But this is the only way. You can't import any model from another application if Django is not configured.
+The call of the ``configure`` function should be placed at the top of your application above the definition of views, models and imports of other modules. Yes, it may violate PEP8 but this is the only way to make it work. You can’t define models or import models from another application until Django is configured.
 
 The good way is define all configuration in global namespace and call ``configure`` with ``locals()`` argument. Don't worry, configuration takes only *UPPERCASE* variables.
 
@@ -110,7 +110,6 @@ The good way is define all configuration in global namespace and call ``configur
     from django_micro import configure
 
     DEBUG = True
-    TEMPLATE_DIRS = ['templates']
 
     configure(locals())
 
@@ -118,50 +117,58 @@ The good way is define all configuration in global namespace and call ``configur
 Views and routes
 ================
 
-Routing is wrapped in single function ``route``. You can use it as decorator.
+Routing is wrapped in a single function ``route``. You can use it as a decorator.
 
 .. code-block:: python
 
     from django_micro import route
 
-    @route(r'^$', name='index')
-    def show_index(request):
+    @route('blog/<int:year>/', name='year_archive')
+    def year_archive(request, year):
         return HttpResponse('hello')
 
-Or use directly.
+Or as a regular function.
 
 .. code-block:: python
 
-    def show_index(request):
+    def year_archive(request):
         return HttpResponse('hello')
 
-    route(r'^$' show_index, name='index')
+    route('blog/<int:year>/', year_archive, name='year_archive')
 
 Also ``route`` may be used with class-based views.
 
 .. code-block:: python
 
-    @route(r'^$', name='index')
-    class IndexView(View):
-        def get(request):
+    @route('blog/<int:year>/', name='year_archive')
+    class YearArchiveView(View):
+        def get(request, year):
             return HttpResponse('hello')
 
     # or directly
-    route(r'^$', IndexView.as_view(), name='index')
+    route('blog/<int:year>/', YearArchiveView.as_view(), name='year_archive')
+
+Micro uses the new simplified routing syntax which was introduced in Django 2.0. If you would like to use the old-style routing syntax with regular expressions, just add ``regex=True`` to the decorator.
+
+.. code-block:: python
+
+    @route(r'^articles/(?P<year>[0-9]{4})/$', regex=True)
+    def year_archive(request, year):
+        return HttpResponse('hello')
 
 You always can access to ``urlpatterns`` for using the low-level API.
 
 .. code-block:: python
 
-    from django.conf.urls import url
+    from django.urls import path
     import django_micro as micro
 
     micro.urlpatterns += [
-        url(r'^$', mainpage, name='mainpage'),
+        path('', homepage, name='homepage'),
     ]
 
 
-**Note:** You can include third-party apps into Micro ``urlpatterns``, but currently can't use Micro as third-party app. Micro — is singleton. You can't create more that one instance of it.
+**Note:** You can include third-party apps into Micro’s ``urlpatterns``, but currently can’t use Micro as a third-party app. Micro is a singleton. You can’t create more that one instance of it.
 
 
 Models and migrations
@@ -207,7 +214,7 @@ You also can place models separately in ``models.py`` file. In this case ``app_l
 Management commands
 ===================
 
-Now you can create any management cli command without creating file in ``yourapp/management/commands``. Just defne command class in your ``app.py`` and wrap it to ``@command`` decorator.
+Now you can create any management command line command without creating file in ``yourapp/management/commands``. Just defne command class in your ``app.py`` and wrap it to ``@command`` decorator.
 
 .. code-block:: python
 
@@ -229,7 +236,7 @@ You also can create function-based commands.
     def print_hello(cmd, **options):
         cmd.stdout.write('Hello, Django!')
 
-Unfortunately the ``command`` decorator uses a few dirty hacks for commands registration. But everything works be fine if you don't think about it ;)
+Unfortunately the ``command`` decorator uses a few dirty hacks for commands registration. But everything works fine if you don’t think about it ;)
 
 
 Custom template tags
@@ -250,7 +257,7 @@ Use ``template`` for register template tags. It works same as a ``register`` obj
         return value.replace(' ', '')
 
 
-You don't need to use the ``load`` tag. All template tags are global.
+You don’t need to use the ``load`` tag. All template tags are global.
 
 
 Testing
@@ -283,9 +290,9 @@ Who uses django-micro
 Related projects
 ================
 
-- importd_ — Popular implementation of django-as-microframework idea, but over-engineered, in my opinion, and magical.
+- importd_ — Popular implementation of django-as-microframework idea, but too  magical and over-engineered in my opinion.
 
-- djmicro_ — Good and lightweight wrapper. I took a few ideas from there. But just an experimental, undocumented, less functional and **deprecated**.
+- djmicro_ — Good and lightweight wrapper. I’ve took a few ideas from there. But it’s an experimental, undocumented and doesn’t develop anymore.
 
 
 .. _example: https://github.com/zenwalker/django-micro/tree/master/example

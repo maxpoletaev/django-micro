@@ -5,9 +5,9 @@
 import os
 from django_micro import configure
 
-DEBUG = True
-STATIC_URL = '/static/'
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+STATIC_URL = '/static/'
+DEBUG = True
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -78,19 +78,24 @@ class Post(models.Model):
 # Views and routes
 # -------------------
 
-@route(r'^$', name='index')
+@route('', name='index')
 def show_index(request):
     posts = Post.objects.all()
     return render(request, 'index.html', {'posts': posts})
 
 
-@route(r'^blog/(\d+)$', name='post')
+@route('blog/<int:post_id>/', name='post')
 def show_post(request, post_id):
     post = get_object_or_404(Post, id=post_id)
     return render(request, 'post.html', {'post': post})
 
 
-@route(r'^class-based$')
+@route(r'^regex/(.*)$', regex=True)
+def regex_view(request, value):
+    return HttpResponse(value)
+
+
+@route('class-based/')
 class ClassBasedView(View):
     def get(self, request):
         return HttpResponse('Hello from class-based view')
@@ -105,7 +110,7 @@ class PostAdmin(admin.ModelAdmin):
     pass
 
 
-route(r'^admin/', admin.site.urls)
+route('admin/', admin.site.urls)
 
 
 # -------------------
