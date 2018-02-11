@@ -70,13 +70,16 @@ def route(pattern, view_func=None, regex=False, *args, **kwargs):
     return decorator
 
 
-def configure(config_dict={}, enable_admin=False):
+def configure(config_dict={}, django_admin=False):
     _create_app(inspect.stack())  # load application from parent module
 
     if 'BASE_DIR' in config_dict:
         config_dict.setdefault('TEMPLATE_DIRS', [os.path.join(config_dict['BASE_DIR'], 'templates')])
 
-    kwargs = {
+    if django_admin:
+        _configure_admin(config_dict)
+
+    django_config = {
         'INSTALLED_APPS': [_app_label] + config_dict.pop('INSTALLED_APPS', []),
         'ROOT_URLCONF': __name__,
         'TEMPLATES': [{
@@ -90,33 +93,36 @@ def configure(config_dict={}, enable_admin=False):
         }],
     }
 
-    if enable_admin:
-        admin_apps = [
+    django_config.update({key: val for key, val in config_dict.items() if key.isupper()})
+    settings.configure(**django_config)
+    django.setup()
+
+
+def _configure_admin(config_dict):
+    admin_deps = {
+        'INSTALLED_APPS': [
             'django.contrib.admin',
             'django.contrib.auth',
             'django.contrib.contenttypes',
             'django.contrib.sessions',
             'django.contrib.staticfiles',
-        ]
-        middlewares = [
+        ],
+        'MIDDLEWARE': [
             'django.contrib.sessions.middleware.SessionMiddleware',
             'django.contrib.auth.middleware.AuthenticationMiddleware',
             'django.middleware.security.SecurityMiddleware',
             'django.middleware.common.CommonMiddleware',
-        ]
-        kwargs['INSTALLED_APPS'].extend(admin_apps)
-        if 'MIDDLEWARE' in kwargs.keys():
-            kwargs['MIDDLEWARE'].extend(middlewares)
-        else:
-            kwargs['MIDDLEWARE'] = middlewares
-        kwargs['TEMPLATES'][0]['OPTIONS']['context_processors'].append(
-            'django.contrib.auth.context_processors.auth'
-        )
-        kwargs.setdefault('STATIC_URL', '/static/')
+        ],
+        'CONTEXT_PROCESSORS': [
+            'django.contrib.auth.context_processors.auth',
+        ],
+    }
 
-    kwargs.update({key: val for key, val in config_dict.items() if key.isupper()})
-    settings.configure(**kwargs)
-    django.setup()
+    for key, value in admin_deps.items():
+        prev_value = config_dict.get(key, [])
+        config_dict[key] = value + prev_value
+
+    config_dict.setdefault('STATIC_URL', '/static/')
 
 
 def _patch_get_commands():

@@ -282,13 +282,13 @@ To run tests which defined in app.py use the following command:
 Admin interface
 ===============
 
-Django-admin requires lots of dependencies in apps and middlewares. We’ve realized that it’s not a simple way to add a huge list of apps to your config just to use admin interface. So we added shortcut ``enable_admin=True`` to the ``configure`` function that automatically includes the all needed dependencies.
+Django-admin requires lots of dependencies in apps and middlewares. We’ve realized that it’s not a simple way to add a huge list of apps to your config just to use admin interface. So we added shortcut ``django_admin=True`` to the ``configure`` function that automatically includes all the needed dependencies.
 
 .. code-block:: python
 
     from django_micro import configure
 
-    configure(locals(), enable_admin=True)
+    configure(locals(), django_admin=True)
 
 
     class Post(models.Model):
