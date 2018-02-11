@@ -23,7 +23,7 @@ What works
 - `Management commands`_
 - `Custom template tags`_
 - `Testing`_
-- Admin interface
+- `Admin interface`_
 - Third party apps
 
 
@@ -277,6 +277,36 @@ To run tests which defined in app.py use the following command:
 .. code-block::
 
     $ python app.py test __main__
+
+
+Admin interface
+===============
+
+Django-admin requires lots of dependencies in apps and middlewares. We’ve realized that it’s not a simple way to add a huge list of apps to your config just to use admin interface. So we added shortcut ``enable_admin=True`` to the ``configure`` function that automatically includes the all needed dependencies.
+
+.. code-block:: python
+
+    from django_micro import configure
+
+    configure(locals(), enable_admin=True)
+
+
+    class Post(models.Model):
+        title = models.CharField(max_length=255)
+        content = models.TextField(blank=True)
+        create_date = models.DateTimeField(auto_now_add=True)
+
+        class Meta:
+            app_label = get_app_label()
+            ordering = ('-create_date',)
+
+
+    @admin.register(Post)
+    class PostAdmin(admin.ModelAdmin):
+        pass
+
+
+    route('admin/', admin.site.urls)
 
 
 Who uses django-micro
