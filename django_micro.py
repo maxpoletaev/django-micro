@@ -70,7 +70,7 @@ def route(pattern, view_func=None, regex=False, *args, **kwargs):
     return decorator
 
 
-def configure(config_dict={}):
+def configure(config_dict={}, enable_admin=False):
     _create_app(inspect.stack())  # load application from parent module
 
     if 'BASE_DIR' in config_dict:
@@ -89,6 +89,30 @@ def configure(config_dict={}):
             },
         }],
     }
+
+    if enable_admin:
+        admin_apps = [
+            'django.contrib.admin',
+            'django.contrib.auth',
+            'django.contrib.contenttypes',
+            'django.contrib.sessions',
+            'django.contrib.staticfiles',
+        ]
+        middlewares = [
+            'django.contrib.sessions.middleware.SessionMiddleware',
+            'django.contrib.auth.middleware.AuthenticationMiddleware',
+            'django.middleware.security.SecurityMiddleware',
+            'django.middleware.common.CommonMiddleware',
+        ]
+        kwargs['INSTALLED_APPS'].extend(admin_apps)
+        if 'MIDDLEWARE' in kwargs.keys():
+            kwargs['MIDDLEWARE'].extend(middlewares)
+        else:
+            kwargs['MIDDLEWARE'] = middlewares
+        kwargs['TEMPLATES'][0]['OPTIONS']['context_processors'].append(
+            'django.contrib.auth.context_processors.auth'
+        )
+        kwargs.setdefault('STATIC_URL', '/static/')
 
     kwargs.update({key: val for key, val in config_dict.items() if key.isupper()})
     settings.configure(**kwargs)
