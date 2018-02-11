@@ -2,7 +2,13 @@
 Changelog
 =========
 
+1.6.0 - 2018-02-11
+==================
+
+- add shortcut to quick admin interface configuation
+
 1.5.0 - 2017-12-04
+==================
 
 - move to Django 2.0
 - use the new simplified routing syntax by default
