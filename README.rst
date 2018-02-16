@@ -286,6 +286,7 @@ Django-admin requires lots of dependencies in apps and middlewares. We’ve real
 
 .. code-block:: python
 
+    from django.contrib import admin
     from django_micro import configure
 
     configure(locals(), django_admin=True)
