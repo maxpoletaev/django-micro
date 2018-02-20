@@ -1,42 +1,13 @@
-import os
-
-from django_micro import (
-    configure, command, route, template, run, get_app_label)
-
-
 # -------------------
 # Configuration
 # -------------------
 
-DEBUG = True
-STATIC_URL = '/static/'
+import os
+from django_micro import configure
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-]
-
-CONTEXT_PROCESSORS = [
-    'django.template.context_processors.debug',
-    'django.template.context_processors.request',
-    'django.contrib.auth.context_processors.auth',
-    'django.contrib.messages.context_processors.messages',
-]
-
-MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-]
+STATIC_URL = '/static/'
+DEBUG = True
 
 DATABASES = {
     'default': {
@@ -45,15 +16,27 @@ DATABASES = {
     },
 }
 
-configure(locals())
+configure(locals(), django_admin=True)
+
+
+# -------------------
+# Imports
+# -------------------
+
+from django.shortcuts import render, get_object_or_404
+from django.core.management.base import BaseCommand
+from django.views.generic import View
+from django.http import HttpResponse
+from django.test import TestCase
+from django.contrib import admin
+from django.db import models
+
+from django_micro import command, route, template, run, get_app_label
 
 
 # -------------------
 # Models
 # -------------------
-
-from django.db import models
-
 
 class Post(models.Model):
     title = models.CharField(max_length=255)
@@ -69,24 +52,24 @@ class Post(models.Model):
 # Views and routes
 # -------------------
 
-from django.shortcuts import render, get_object_or_404
-from django.views.generic import View
-from django.http import HttpResponse
-
-
-@route(r'^$', name='index')
+@route('', name='index')
 def show_index(request):
     posts = Post.objects.all()
     return render(request, 'index.html', {'posts': posts})
 
 
-@route(r'^blog/(\d+)$', name='post')
+@route('blog/<int:post_id>/', name='post')
 def show_post(request, post_id):
     post = get_object_or_404(Post, id=post_id)
     return render(request, 'post.html', {'post': post})
 
 
-@route(r'^class-based$')
+@route(r'^regex/(.*)$', regex=True)
+def regex_view(request, value):
+    return HttpResponse(value)
+
+
+@route('class-based/')
 class ClassBasedView(View):
     def get(self, request):
         return HttpResponse('Hello from class-based view')
@@ -96,15 +79,12 @@ class ClassBasedView(View):
 # Admin interface
 # -------------------
 
-from django.contrib import admin
-
-
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
     pass
 
 
-route(r'^admin/', admin.site.urls)
+route('admin/', admin.site.urls)
 
 
 # -------------------
@@ -120,13 +100,25 @@ def say_hello(name):
 # Management commands
 # --------------------
 
-from django.core.management.base import BaseCommand
-
-
 @command('print_hello')
-class PrintHelloCommand(BaseCommand):
+class HelloCommand(BaseCommand):
     def handle(self, *args, **options):
         self.stdout.write('Hello, Django!')
+
+
+@command()
+def print_hello_func(cmd, **options):
+    cmd.stdout.write('Hello from function-based command!')
+
+
+# --------------------
+# Tests
+# --------------------
+
+class TestIndexView(TestCase):
+    def test_success(self):
+        response = self.client.get('/')
+        self.assertEqual(response.status_code, 200)
 
 
 # -------------------

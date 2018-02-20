@@ -6,24 +6,28 @@ Django Micro
     https://img.shields.io/pypi/v/django-micro.svg
     :target: https://pypi.python.org/pypi/django-micro
 
-Django Micro — Lightweight wrapper for using Django as a microframework and writing small applications in a single file.
+.. image::
+    https://img.shields.io/badge/status-stable-brightgreen.svg
 
-**tl;dr:** See an example_ of full-featured application.
+Django Micro is lightweight wrapper around Django that turns it to the microframework for writing small applications in a single file.
+
+**tl;dr:** See the example_ of full-featured application.
 
 
-Features
-========
+What works
+==========
 
-- Configuration
-- Views and routes
-- Models (with migrations)
-- Custom management commands
-- Custom template tags
-- Admin interface
+- `Configuration`_
+- `Views and routes`_
+- `Models and migrations`_
+- `Management commands`_
+- `Custom template tags`_
+- `Testing`_
+- `Admin interface`_
 - Third party apps
 
 
-Insallation
+Installation
 ===========
 
 .. code-block::
@@ -45,8 +49,8 @@ Create ``app.py`` file with following content.
     configure(locals())
 
 
-    @route(r'^$', name='index')
-    def show_index(request):
+    @route('', name='homepage')
+    def homepage(request):
         name = request.GET.get('name', 'World')
         return HttpResponse('Hello, {}!'.format(name))
 
@@ -59,30 +63,30 @@ Run the application.
 
     $ python app.py runserver
 
-**Note:** Parent directory of ``app.py`` file should be valid python module name. Under the hood Micro adds this directory into ``INSTALLED_APPS`` and use it as normal django application.
+**Note:** Parent directory of the ``app.py`` file must have a valid python module name. Under the hood, Micro adds that directory to ``INSTALLED_APPS`` and uses it as a regular Django application.
 
 
 Compatibility
 =============
 
-We will try to support only latest stable version of Django. This is the only way to keep codebase of django-micro clean, without hacks for many versions of Django.
+The latest relase of django-micro supports only the latest stable release of Django. This is the only way to keep codebase of django-micro clean, without hacks for different versions of Django.
 
-- **Django version:** >=1.10, <1.11
-- **Python version:** 2.7, >=3.4
+- **Django version:** >=2.0, <2.1
+- **Python version:** >=3.4
 
 
 Run and deployment
 ==================
 
-On localhost, an application runs with the built-in ``runserver`` command and deploys as a standard WSGI application.
+On the localhost the application runs with the built-in ``runserver`` command and deploys as a standard WSGI application.
 
 .. code-block::
 
     $ python app.py runserver
-    $ gunicorn app --bind localhost:8000
-    $ uwsgi --wsgi-file app.py --http localhost:8000
+    $ gunicorn example.app --bind localhost:8000
+    $ uwsgi --module example.app --http localhost:8000
 
-This behaviour provided by single string: ``application = run()``. The strongest magic in django-micro. This is actually just a shortcut to the following code.
+This behaviour is provided by the single string: ``application = run()`` which actually just a shortcut for the following code.
 
 .. code-block:: python
 
@@ -97,84 +101,101 @@ This behaviour provided by single string: ``application = run()``. The strongest
 Configuration
 =============
 
-Call of the ``configure`` function should be placed at top of your application. Before definition views, models and other.
+The call of the ``configure`` function must be placed at the top of your application above the definition of views, models, and imports of other modules. It may violate PEP8, but this is the only way to make it works. You can’t define models or import models from another application until Django is configured.
 
-The good way is define all configuration in global namespace and call ``configure`` with ``locals()`` argument. Don't worry, configuration takes only *UPPERCASE* variables.
+I recommend to define all the configuration in the global namespace and call ``configure`` with ``locals()`` argument. Don’t worry, configure takes only *UPPERCASE* variables.
 
 .. code-block:: python
 
     from django_micro import configure
 
     DEBUG = True
-    TEMPLATE_DIRS = ['templates']
+
     configure(locals())
 
 
 Views and routes
 ================
 
-Routing is wrapped in single function ``route``. You can use it as decorator.
+Routing is wrapped in a single function ``route``. You can use it as a decorator.
 
 .. code-block:: python
 
     from django_micro import route
 
-    @route(r'^$', name='index')
-    def show_index(request):
+    @route('blog/<int:year>/', name='year_archive')
+    def year_archive(request, year):
         return HttpResponse('hello')
 
-Or use directly.
+Or as a regular function.
 
 .. code-block:: python
 
-    def show_index(request):
+    def year_archive(request):
         return HttpResponse('hello')
 
-    route(r'^$' show_index, name='index')
+    route('blog/<int:year>/', year_archive, name='year_archive')
 
 Also ``route`` may be used with class-based views.
 
 .. code-block:: python
 
-    @route(r'^$', name='index')
-    class IndexView(View):
-        def get(request):
+    @route('blog/<int:year>/', name='year_archive')
+    class YearArchiveView(View):
+        def get(request, year):
             return HttpResponse('hello')
 
     # or directly
-    route(r'^$', IndexView.as_view(), name='index')
+    route('blog/<int:year>/', YearArchiveView.as_view(), name='year_archive')
 
-You always can access to ```urlpatterns`` for using the low-level API.
+Micro uses the new simplified routing syntax which was introduced in Django 2.0. But if you’d like to use the regex-based routing syntax, just add ``regex=True`` to the decorator.
 
 .. code-block:: python
 
-    from django.conf.urls import url
+    @route(r'^articles/(?P<year>[0-9]{4})/$', regex=True)
+    def year_archive(request, year):
+        return HttpResponse('hello')
+
+You always can access the ``urlpatterns`` for the use low-level API.
+
+.. code-block:: python
+
+    from django.urls import path
     import django_micro as micro
 
     micro.urlpatterns += [
-        url(r'^$', mainpage, name='mainpage'),
+        path('', homepage, name='homepage'),
     ]
 
 
-**Note:** You can include third-party apps into Micro ``urlpatterns``, but currently can't use Micro as third-party app. Micro — is singleton. You can't create more that one instance of it.
+**Note:** You can include third-party apps into Micro’s ``urlpatterns``, but currently can’t use Micro as a third-party app. Micro is a singleton, and you can’t create more that one instance of it.
 
 
 Models and migrations
 =====================
 
-Micro normally works with models and migrations. Just define model in your ``app.py`` file. If you need migrations, create ``migrations`` directory next to the ``app.py``.
+Micro works well with models and migrations. Just define model in your ``app.py`` file. If you need migrations, create ``migrations`` directory next to the ``app.py`` and call ``python app.py makemigrations``.
+
+.. code-block::
+
+    blog
+    ├── __init__.py
+    ├── app.py
+    └── migrations
+        ├── __init__.py
+        └── 0001_initial.py
 
 .. code-block:: python
 
     from django.db import models
 
-    class Post:
-      title = models.CharField(max_length=255)
+    class Post(models.Model):
+        title = models.CharField(max_length=255)
 
-      class Meta:
-          app_label = 'blog'
+        class Meta:
+            app_label = 'blog'
 
-**Note:** You always should set ``app_label`` attribute in ``Meta`` of your models. For sample: if application is placed in ``blog/app.py``, app_label must have a ``blog`` value.
+**Note:** You always need to set ``app_label`` attribute in ``Meta`` of your models. For example, if application placed in ``blog/app.py``, app_label should be ``blog``.
 
 For getting ``app_label`` you can use ``get_app_label`` shortcut.
 
@@ -182,21 +203,125 @@ For getting ``app_label`` you can use ``get_app_label`` shortcut.
 
     from django_micro import get_app_label
 
-    class Post:
-        # ...
+    class Meta:
+        app_label = get_app_label()
+
+You also can place models separately in ``models.py`` file. In this case ``app_label`` is not required, but this is not a micro-way ;)
+
+
+Management commands
+===================
+
+Now you can create any management command without creating a file in ``yourapp/management/commands``. Just defne command class in your ``app.py`` and wrap it to ``@command`` decorator.
+
+.. code-block:: python
+
+    from django.core.management.base import BaseCommand
+    from django_micro import command
+
+    @command('print_hello')
+    class PrintHelloCommand(BaseCommand):
+        def handle(self, *args, **options):
+            self.stdout.write('Hello, Django!')
+
+You also can create function-based commands.
+
+.. code-block:: python
+
+    from django_micro import command
+
+    @command
+    def print_hello(cmd, **options):
+        cmd.stdout.write('Hello, Django!')
+
+Unfortunately, the ``command`` decorator uses a few dirty hacks for command registration. But everything works fine if you don’t think about it ;)
+
+
+Custom template tags
+====================
+
+Use ``template`` for register template tags. It works same as a ``register`` object in tag library file.
+
+.. code-block:: python
+
+    from django_micro import template
+
+    @template.simple_tag
+    def print_hello(name):
+        return 'Hello, {}!'
+
+    @template.filter
+    def remove_spaces(value):
+        return value.replace(' ', '')
+
+
+You don’t need to use the ``load`` tag. All template tags are global.
+
+
+Testing
+=======
+
+No magick. Use built-in test cases.
+
+.. code-block:: python
+
+    from django.test import TestCase
+
+    class TestIndexView(TestCase):
+        def test_success(self):
+            response = self.client.get('/')
+            self.assertEqual(response.status_code, 200)
+
+To run tests which defined in app.py use the following command:
+
+.. code-block::
+
+    $ python app.py test __main__
+
+
+Admin interface
+===============
+
+Django-admin requires lots of dependencies in apps and middlewares. We’ve realized that it’s not a simple way to add a huge list of apps to your config just to use the admin interface. So we added a shortcut ``django_admin=True`` to the ``configure`` function that automatically includes all the needed dependencies.
+
+.. code-block:: python
+
+    from django.contrib import admin
+    from django_micro import configure
+
+    configure(locals(), django_admin=True)
+
+
+    class Post(models.Model):
+        title = models.CharField(max_length=255)
+        content = models.TextField(blank=True)
+        create_date = models.DateTimeField(auto_now_add=True)
 
         class Meta:
             app_label = get_app_label()
+            ordering = ('-create_date',)
 
-You also can place models separately in ``models.py`` file. In this case ``app_label`` is not required. But this is not a micro-way ;)
+
+    @admin.register(Post)
+    class PostAdmin(admin.ModelAdmin):
+        pass
+
+
+    route('admin/', admin.site.urls)
+
+
+Who uses django-micro
+=====================
+
+- `storagl <https://github.com/zenwalker/storagl>`_ — simple storage for screenshots and other shared files with short direct links
 
 
 Related projects
 ================
 
-- importd_ — Popular implementation of django-as-microframework idea, but over-engineered, magical and not intuitive.
+- importd_ — Popular implementation of django-as-microframework idea, but too  magical and over-engineered in my opinion.
 
-- djmicro_ — Good and lightweight wrapper, but just an experimental, without support many features out-of-the-box, such as models and migrations. **deprecated**
+- djmicro_ — Good and lightweight wrapper. I’ve took a few ideas from there. But it’s an experimental, undocumented and doesn’t develop anymore.
 
 
 .. _example: https://github.com/zenwalker/django-micro/tree/master/example
