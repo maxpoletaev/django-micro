@@ -112,6 +112,7 @@ def _configure_admin(config_dict):
             'django.contrib.auth.middleware.AuthenticationMiddleware',
             'django.middleware.security.SecurityMiddleware',
             'django.middleware.common.CommonMiddleware',
+            'django.contrib.messages.middleware.MessageMiddleware',
         ],
         'CONTEXT_PROCESSORS': [
             'django.contrib.auth.context_processors.auth',
