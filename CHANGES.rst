@@ -2,6 +2,11 @@
 Changelog
 =========
 
+1.6.1 - 2018-02-20
+==================
+
+- add MessageMiddleware to django_admin shortcut
+
 1.6.0 - 2018-02-11
 ==================
 
