@@ -10,7 +10,7 @@ setup(
     long_description=read('README.rst'),
     keywords='django microframework',
     py_modules=['django_micro'],
-    version='1.7.0',
+    version='1.7.1',
     author='Max Poletaev',
     author_email='max.poletaev@gmail.com',
     url='https://github.com/zenwalker/django-micro',

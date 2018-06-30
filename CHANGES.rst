@@ -2,7 +2,7 @@
 Changelog
 =========
 
-1.7.0 - 2018-06-30
+1.7.1 - 2018-06-30
 ==================
 
 - AppConfig is now used for app registration
