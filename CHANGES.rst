@@ -2,6 +2,12 @@
 Changelog
 =========
 
+1.7.0 - 2018-06-30
+==================
+
+- AppConfig is now used for app registration
+- fix ``--run-syncdb`` migrations (#14)
+
 1.6.1 - 2018-02-20
 ==================
 
