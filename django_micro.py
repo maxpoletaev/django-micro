@@ -4,6 +4,7 @@ import sys
 import os
 
 import django
+from django.apps import AppConfig
 from django.conf import settings
 from django.core import management
 from django.template import Library
@@ -16,40 +17,48 @@ __all__ = ['command', 'configure', 'run', 'route', 'template', 'get_app_label']
 register = template = Library()
 urlpatterns = []
 
-_app_module = None
-_app_label = None
+_parent_module = None
+_app_config = None
 _commands = {}
 
 
 def _create_app(stack):
     # extract directory, filename and app label from parent module
-    app_module = sys.modules[stack[1][0].f_locals['__name__']]
-    app_dirname = os.path.dirname(os.path.abspath(app_module.__file__))
-    app_file_name = os.path.basename(app_module.__file__).split('.')[0]
-    app_label = os.path.basename(app_dirname)
+    parent_module = sys.modules[stack[1][0].f_locals['__name__']]
 
-    app_module_name = '{}.{}'.format(app_label, app_file_name)
-
-    # use parent directory of application as import root
-    sys.path[0] = os.path.dirname(app_dirname)
+    app_module = os.path.basename(os.path.dirname(os.path.abspath(parent_module.__file__)))
+    entrypoint = '{}.{}'.format(app_module, os.path.basename(parent_module.__file__).split('.')[0])
 
     # allow relative import from app.py
-    app_module.__package__ = app_label
-    import_module(app_label)
+    parent_module.__package__ = app_module
+    import_module(app_module)
 
-    if app_module.__name__ != app_module_name:
-        # allow recursive import app.py
-        sys.modules[app_module_name] = app_module
+    # allow recursive import app.py
+    if parent_module.__name__ != app_module:
+        sys.modules[entrypoint] = parent_module
 
-    globals().update(_app_module=app_module, _app_label=app_label)
+    class MicroAppConfig(AppConfig):
+        module = app_module
+        label = app_module
+        name = app_module
+
+        def import_models(self):
+            super().import_models()
+            if self.models_module is None:
+                self.models_module = parent_module
+
+    globals().update(
+        _app_config=MicroAppConfig,
+        _parent_module=parent_module,
+    )
 
 
 def get_app_label():
-    if not _app_label:
+    if _app_config is None:
         raise ImproperlyConfigured(
             "Application label is not detected. "
             "Check whether the configure() was called.")
-    return _app_label
+    return _app_config.label
 
 
 def route(pattern, view_func=None, regex=False, *args, **kwargs):
@@ -80,7 +89,7 @@ def configure(config_dict={}, django_admin=False):
         _configure_admin(config_dict)
 
     django_config = {
-        'INSTALLED_APPS': [_app_label] + config_dict.pop('INSTALLED_APPS', []),
+        'INSTALLED_APPS': ['django_micro._app_config'] + config_dict.pop('INSTALLED_APPS', []),
         'ROOT_URLCONF': __name__,
         'TEMPLATES': [{
             'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -161,7 +170,7 @@ def command(name=None, command_cls=None):
             raise DjangoMicroException("Class-based commands requires name argument.")
 
         # Hack for extracting app name from command (https://goo.gl/1c1Irj)
-        command_instance.rpartition = lambda x: [_app_label]
+        command_instance.rpartition = lambda x: [_app_config.module]
 
         _commands[command_name] = command_instance
         return command_cls
@@ -182,7 +191,7 @@ def run():
     if not settings.configured:
         raise ImproperlyConfigured("You should call configure() after configuration define.")
 
-    if _app_module.__name__ == '__main__':
+    if _parent_module.__name__ == '__main__':
         from django.core.management import execute_from_command_line
         execute_from_command_line(sys.argv)
     else:

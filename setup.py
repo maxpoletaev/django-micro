@@ -5,7 +5,7 @@ setup(
     description='Django as a microframework',
     keywords='django microframework',
     py_modules=['django_micro'],
-    version='1.6.1',
+    version='1.7.0',
     author='Max Poletaev',
     author_email='max.poletaev@gmail.com',
     url='https://github.com/zenwalker/django-micro',
