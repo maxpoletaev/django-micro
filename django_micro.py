@@ -23,10 +23,13 @@ _commands = {}
 
 
 def _create_app(stack):
-    # extract directory, filename and app label from parent module
     parent_module = sys.modules[stack[1][0].f_locals['__name__']]
+    parent_module_dir = os.path.dirname(os.path.abspath(parent_module.__file__))
 
-    app_module = os.path.basename(os.path.dirname(os.path.abspath(parent_module.__file__)))
+    # use parent directory of application as import root
+    sys.path[0] = os.path.dirname(parent_module_dir)
+
+    app_module = os.path.basename(parent_module_dir)
     entrypoint = '{}.{}'.format(app_module, os.path.basename(parent_module.__file__).split('.')[0])
 
     # allow relative import from app.py
