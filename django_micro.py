@@ -128,6 +128,7 @@ def _configure_admin(config_dict):
         ],
         'CONTEXT_PROCESSORS': [
             'django.contrib.auth.context_processors.auth',
+            'django.contrib.messages.context_processors.messages',
         ],
     }
 
