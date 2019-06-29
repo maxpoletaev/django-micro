@@ -117,6 +117,7 @@ def _configure_admin(config_dict):
             'django.contrib.auth',
             'django.contrib.contenttypes',
             'django.contrib.sessions',
+            'django.contrib.messages',
             'django.contrib.staticfiles',
         ],
         'MIDDLEWARE': [
