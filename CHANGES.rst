@@ -2,6 +2,16 @@
 Changelog
 =========
 
+1.7.3 - 2019-07-06
+==================
+
+- Add missing messages app (fixes #16)
+
+1.7.2 - 2018-08-28
+==================
+
+- Use parent directory as the import root (fixes #15)
+
 1.7.1 - 2018-06-30
 ==================
 
