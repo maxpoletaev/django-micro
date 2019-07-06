@@ -28,7 +28,7 @@ What works
 
 
 Installation
-===========
+============
 
 .. code-block::
 
