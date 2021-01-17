@@ -71,7 +71,7 @@ Compatibility
 
 The latest relase of django-micro supports only the latest stable release of Django. This is the only way to keep codebase of django-micro clean, without hacks for different versions of Django.
 
-- **Django version:** >=2.0, <2.1
+- **Django version:** >=2.1
 - **Python version:** >=3.4
 
 
