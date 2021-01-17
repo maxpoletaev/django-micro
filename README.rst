@@ -310,20 +310,11 @@ Django-admin requires lots of dependencies in apps and middlewares. We’ve real
     route('admin/', admin.site.urls)
 
 
-Who uses django-micro
-=====================
+Credits
+=======
 
-- `storagl <https://github.com/zenwalker/storagl>`_ — simple storage for screenshots and other shared files with short direct links
+Django Micro is based on ideas from the following projects:
 
-
-Related projects
-================
-
-- importd_ — Popular implementation of django-as-microframework idea, but too  magical and over-engineered in my opinion.
-
-- djmicro_ — Good and lightweight wrapper. I’ve took a few ideas from there. But it’s an experimental, undocumented and doesn’t develop anymore.
-
-
-.. _example: https://github.com/zenwalker/django-micro/tree/master/example
-.. _djmicro: https://github.com/apendleton/djmicro
-.. _importd: https://github.com/amitu/importd
+- https://softwaremaniacs.org/blog/2011/01/07/django-micro-framework/en/
+- https://github.com/apendleton/djmicro
+- https://github.com/amitu/importd
